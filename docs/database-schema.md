@@ -38,7 +38,7 @@ Modelo multi-tenant: cada **franquicia** es una `Organization`, y cada **restaur
 `Location.TimeZone` es clave: la programación horaria (`Schedules`) se evalúa en la zona horaria del restaurante, no en UTC del servidor.
 
 ### Users / Roles / UserRoles
-Un usuario pertenece a una `Organization`. Sus roles se guardan en `UserRoles`, donde `LocationId` puede ser `NULL` (rol aplicado a toda la franquicia, ej. `OrgAdmin`) o apuntar a un restaurante concreto (ej. `LocationAdmin` solo del restaurante X). Roles semilla: `SuperAdmin`, `OrgAdmin`, `LocationAdmin`, `Viewer`.
+Un usuario pertenece a **una única** `Organization`, salvo los usuarios `SuperAdmin`, cuyo `OrganizationId` es `NULL` (acceso global a todas las franquicias). Sus roles se guardan en `UserRoles`, donde `LocationId` puede ser `NULL` (rol aplicado a toda la franquicia, ej. `OrgAdmin`) o apuntar a un restaurante concreto (ej. `LocationAdmin` solo del restaurante X). Roles semilla: `SuperAdmin`, `OrgAdmin`, `LocationAdmin`, `Viewer`.
 
 ### ScreenGroups / Screens
 Un restaurante puede agrupar pantallas (`ScreenGroups`, ej. "Sala", "Barra", "Terraza") para asignar programación a varias pantallas a la vez sin repetirla una a una.
@@ -72,14 +72,24 @@ El backend resuelve en tiempo real, en cada polling, cuál es el `Schedule` acti
 ### ScreenHeartbeats
 Cada polling del player deja un registro (o se actualiza un agregado) con IP, versión y playlist activa — usado para el panel de monitorización de la fase 5 (pantallas online/offline, qué están reproduciendo ahora).
 
+### AuditLogs
+El borrado es **físico** (`DELETE` real) en todas las tablas de negocio, no hay flags `IsActive`. Antes de borrar, el backend guarda un snapshot JSON del registro en `AuditLogs` (qué se borró, quién, cuándo), dentro de la misma transacción que el `DELETE`. Esto cubre el requisito de "borrado físico con registro" sin arrastrar filas muertas en las tablas operativas.
+
+Cuando se borra `Media` también hay que borrar el blob en Azure Storage (o moverlo a un contenedor de "papelera" antes de purgarlo) — responsabilidad del servicio de backend, no de la base de datos.
+
 ## Decisiones de diseño
 
 - **PKs `UNIQUEIDENTIFIER` (GUID)**: evita IDs secuenciales adivinables en las URLs de la API y facilita generar IDs desde el backend antes de insertar (útil para Blob Storage paths, tokens de pairing, etc.).
-- **Soft state con `IsActive`** en vez de borrado físico en la mayoría de tablas, para no romper referencias históricas (ej. una `Media` borrada que sigue apareciendo en `PlaylistItems` antiguos) — a decidir si en MVP simplificamos a borrado físico en `PlaylistItems`/`Schedules`.
+- **Borrado físico + `AuditLogs`**: sin columnas `IsActive`; cada borrado deja un snapshot JSON auditable.
+- **Un usuario, una organización** (excepto `SuperAdmin`, que no pertenece a ninguna y ve todas).
 - **Playlists reutilizables a nivel organización** (`LocationId NULL`) para franquicias que quieren una campaña/promo idéntica en todos los restaurantes.
+- Sin campos de idioma/moneda por `Location`: el sistema es puramente un player de foto/video, no gestiona menús ni precios.
 
-## Pendiente de validar contigo
+## ORM
 
-1. ¿Borrado físico o solo `IsActive=0` para Media/Playlists/Screens? (afecta a cascadas y limpieza de Blob Storage)
-2. ¿Un usuario puede pertenecer a más de una `Organization`, o siempre a una sola? (el esquema actual asume una sola)
-3. ¿Necesitas idioma/moneda por `Location` desde ya, o se añade más adelante si hay menús/precios en pantalla?
+Se usará **Prisma** (TypeScript) sobre SQL Server:
+- Tipado end-to-end generado automáticamente a partir de `schema.prisma`, coherente con Express + TS.
+- Migraciones versionadas (`prisma migrate`) — más cómodo de mantener en equipo que TypeORM para este caso.
+- Soporte estable de SQL Server como datasource.
+
+El siguiente paso (scaffolding del backend) traducirá este `db/schema.sql` a `prisma/schema.prisma` como fuente de verdad para migraciones; `db/schema.sql` queda como documento de referencia/diseño.

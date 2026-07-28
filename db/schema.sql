@@ -7,7 +7,6 @@ CREATE TABLE Organizations (
     Id              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
     Name            NVARCHAR(200)    NOT NULL,
     Slug            NVARCHAR(100)    NOT NULL UNIQUE,
-    IsActive        BIT              NOT NULL DEFAULT 1,
     CreatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
@@ -18,7 +17,6 @@ CREATE TABLE Locations (
     Name            NVARCHAR(200)    NOT NULL,
     Address         NVARCHAR(400)    NULL,
     TimeZone        NVARCHAR(100)    NOT NULL DEFAULT 'Europe/Madrid', -- IANA tz, usado para evaluar Schedules
-    IsActive        BIT              NOT NULL DEFAULT 1,
     CreatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
@@ -26,15 +24,17 @@ CREATE INDEX IX_Locations_OrganizationId ON Locations(OrganizationId);
 
 -- ----------------------------------------------------------------------------
 -- Usuarios y roles (scope: global org, o restringido a una location)
+-- OrganizationId es NULL únicamente para usuarios SuperAdmin (acceso global,
+-- sin pertenecer a ninguna franquicia). Cualquier otro usuario pertenece a
+-- una única Organization.
 -- ----------------------------------------------------------------------------
 
 CREATE TABLE Users (
     Id              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-    OrganizationId  UNIQUEIDENTIFIER NOT NULL REFERENCES Organizations(Id),
+    OrganizationId  UNIQUEIDENTIFIER NULL REFERENCES Organizations(Id),
     Email           NVARCHAR(256)    NOT NULL UNIQUE,
     PasswordHash    NVARCHAR(256)    NOT NULL,
     FullName        NVARCHAR(200)    NOT NULL,
-    IsActive        BIT              NOT NULL DEFAULT 1,
     CreatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
@@ -90,7 +90,6 @@ CREATE TABLE Screens (
     LastSeenIp              VARCHAR(45)      NULL,
     PlayerVersion           NVARCHAR(50)     NULL,
 
-    IsActive                BIT              NOT NULL DEFAULT 1,
     CreatedAt               DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt               DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
@@ -115,7 +114,6 @@ CREATE TABLE Media (
     Width               INT              NULL,
     Height              INT              NULL,
     UploadedByUserId    UNIQUEIDENTIFIER NULL REFERENCES Users(Id),
-    IsActive            BIT              NOT NULL DEFAULT 1,
     CreatedAt           DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
 CREATE INDEX IX_Media_OrganizationId ON Media(OrganizationId);
@@ -130,7 +128,6 @@ CREATE TABLE Playlists (
     LocationId                  UNIQUEIDENTIFIER NULL REFERENCES Locations(Id), -- NULL = plantilla reutilizable a nivel org
     Name                        NVARCHAR(200)    NOT NULL,
     DefaultItemDurationSeconds  INT              NOT NULL DEFAULT 10, -- usado si un item de imagen no tiene override
-    IsActive                    BIT              NOT NULL DEFAULT 1,
     CreatedAt                   DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt                   DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
 );
@@ -170,7 +167,6 @@ CREATE TABLE Schedules (
     StartTime       TIME             NOT NULL DEFAULT '00:00:00',
     EndTime         TIME             NOT NULL DEFAULT '23:59:59',
 
-    IsActive        BIT              NOT NULL DEFAULT 1,
     CreatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
 
@@ -195,6 +191,26 @@ CREATE TABLE ScreenHeartbeats (
     ActivePlaylistId UNIQUEIDENTIFIER    NULL REFERENCES Playlists(Id)
 );
 CREATE INDEX IX_ScreenHeartbeats_ScreenId_SeenAt ON ScreenHeartbeats(ScreenId, SeenAt DESC);
+
+-- ----------------------------------------------------------------------------
+-- Auditoría de borrados
+-- El borrado es físico (DELETE real) en todas las tablas de negocio; antes de
+-- borrar, el backend inserta aquí una copia del registro para dejar rastro de
+-- quién borró qué y cuándo. Se rellena desde el ORM (transacción: snapshot +
+-- delete), no mediante triggers.
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE AuditLogs (
+    Id                  BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    EntityName          NVARCHAR(100)    NOT NULL, -- ej. 'Screen', 'Media', 'Playlist'
+    EntityId            UNIQUEIDENTIFIER NOT NULL,
+    OrganizationId      UNIQUEIDENTIFIER NULL,      -- para poder filtrar auditoría por franquicia
+    PerformedByUserId   UNIQUEIDENTIFIER NULL REFERENCES Users(Id),
+    DataSnapshot        NVARCHAR(MAX)    NOT NULL,  -- JSON del registro completo justo antes de borrarlo
+    PerformedAt         DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE INDEX IX_AuditLogs_EntityName_EntityId ON AuditLogs(EntityName, EntityId);
+CREATE INDEX IX_AuditLogs_OrganizationId ON AuditLogs(OrganizationId);
 
 -- ----------------------------------------------------------------------------
 -- Datos semilla
