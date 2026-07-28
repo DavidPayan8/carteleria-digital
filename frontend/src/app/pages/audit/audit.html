@@ -1,0 +1,46 @@
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold tracking-tight">Auditoría del Sistema</h1>
+  <p class="text-sm text-on-surface-variant">Registro de borrados y cambios de configuración.</p>
+</div>
+
+<div class="overflow-hidden rounded-lg border border-border bg-surface-container">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-border bg-surface-container-high text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+      <tr>
+        <th class="px-4 py-2">Fecha/Hora</th>
+        <th class="px-4 py-2">Usuario</th>
+        <th class="px-4 py-2">Entidad</th>
+        <th class="px-4 py-2">ID Registro</th>
+        <th class="px-4 py-2">Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (log of logs(); track log.id) {
+        <tr class="border-b border-border last:border-0 hover:bg-surface-container-high">
+          <td class="px-4 py-2 font-mono text-xs">{{ log.performedAt | date: "short" }}</td>
+          <td class="px-4 py-2">{{ log.performedBy?.email ?? "—" }}</td>
+          <td class="px-4 py-2">
+            <span class="rounded-full bg-danger-container px-2 py-0.5 text-xs font-medium text-on-danger-container">
+              Eliminar {{ log.entityName }}
+            </span>
+          </td>
+          <td class="px-4 py-2 font-mono text-xs text-on-surface-variant">{{ log.entityId.slice(0, 8) }}</td>
+          <td class="px-4 py-2 truncate max-w-xs font-mono text-xs text-on-surface-variant" [title]="log.dataSnapshot">
+            {{ parseSnapshot(log.dataSnapshot) }}
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="px-4 py-6 text-center text-on-surface-variant">Sin registros todavía.</td></tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="flex items-center justify-between border-t border-border px-4 py-3 text-xs text-on-surface-variant">
+    <span>{{ total() }} resultados</span>
+    <div class="flex items-center gap-2">
+      <button (click)="goToPage(page() - 1)" [disabled]="page() === 1" class="disabled:opacity-30">←</button>
+      <span>Página {{ page() }} de {{ totalPages() }}</span>
+      <button (click)="goToPage(page() + 1)" [disabled]="page() === totalPages()" class="disabled:opacity-30">→</button>
+    </div>
+  </div>
+</div>

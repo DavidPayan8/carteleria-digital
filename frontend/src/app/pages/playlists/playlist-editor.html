@@ -1,0 +1,74 @@
+@if (playlist(); as p) {
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <a routerLink="/playlists" class="text-xs font-medium text-on-surface-variant hover:underline">← Playlists</a>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ p.name }}</h1>
+    </div>
+    <div class="flex items-end gap-2">
+      <select [(ngModel)]="selectedMediaId" class="rounded border border-border px-3 py-2 text-sm">
+        <option value="" disabled>Añadir archivo...</option>
+        @for (m of mediaLibrary(); track m.id) {
+          <option [value]="m.id">{{ m.fileName }}</option>
+        }
+      </select>
+      <button (click)="addSelectedMedia()" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary">
+        Añadir
+      </button>
+    </div>
+  </div>
+
+  <div class="flex gap-4 overflow-x-auto pb-4">
+    @for (item of p.items; track item.id; let i = $index) {
+      <div class="w-64 shrink-0 rounded-lg border border-border bg-surface-container p-3">
+        <div class="mb-2 flex items-center justify-between">
+          <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary">
+            {{ i + 1 }}
+          </span>
+          <div class="flex gap-1">
+            <button (click)="moveItem(i, -1)" [disabled]="i === 0" class="text-xs disabled:opacity-30">◀</button>
+            <button (click)="moveItem(i, 1)" [disabled]="i === (p.items?.length ?? 0) - 1" class="text-xs disabled:opacity-30">▶</button>
+          </div>
+        </div>
+
+        <div class="aspect-video overflow-hidden rounded bg-surface-container-high">
+          @if (item.media?.type === 0) {
+            <img [src]="item.media?.url" class="h-full w-full object-cover" />
+          } @else {
+            <video [src]="item.media?.url" class="h-full w-full object-cover"></video>
+          }
+        </div>
+
+        <div class="mt-2 truncate text-sm font-medium" [title]="item.media?.fileName">{{ item.media?.fileName }}</div>
+
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <div>
+            <label class="mb-0.5 block text-[10px] uppercase text-on-surface-variant">Duración (s)</label>
+            <input
+              type="number"
+              min="1"
+              [ngModel]="item.durationSecondsOverride ?? item.media?.durationSeconds ?? p.defaultItemDurationSeconds"
+              (change)="updateDuration(item.id, $any($event.target).valueAsNumber)"
+              class="w-full rounded border border-border px-2 py-1 text-xs"
+            />
+          </div>
+          <div>
+            <label class="mb-0.5 block text-[10px] uppercase text-on-surface-variant">Transición</label>
+            <select
+              [ngModel]="item.transitionType"
+              (ngModelChange)="updateTransition(item.id, $event)"
+              class="w-full rounded border border-border px-2 py-1 text-xs"
+            >
+              @for (t of transitions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <button (click)="removeItem(item.id)" class="mt-2 text-xs font-medium text-danger hover:underline">Quitar</button>
+      </div>
+    } @empty {
+      <p class="py-10 text-sm text-on-surface-variant">Añade el primer archivo desde el selector de arriba.</p>
+    }
+  </div>
+}

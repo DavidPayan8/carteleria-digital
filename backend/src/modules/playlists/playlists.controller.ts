@@ -81,3 +81,28 @@ export const removePlaylistItem = asyncHandler(async (req, res) => {
   await prisma.playlistItem.delete({ where: { id: req.params.itemId } });
   res.status(204).send();
 });
+
+const updateItemSchema = addItemSchema.partial();
+
+export const updatePlaylistItem = asyncHandler(async (req, res) => {
+  const data = updateItemSchema.parse(req.body);
+  const item = await prisma.playlistItem.update({ where: { id: req.params.itemId }, data });
+  res.json(item);
+});
+
+// Reordena todos los items de una vez: recibe [{ itemId, sortOrder }, ...]
+const reorderSchema = z.array(z.object({ itemId: z.string().uuid(), sortOrder: z.number().int().min(0) }));
+
+export const reorderPlaylistItems = asyncHandler(async (req, res) => {
+  const items = reorderSchema.parse(req.body);
+  await prisma.$transaction(
+    items.map(({ itemId, sortOrder }) =>
+      // offset temporal para evitar choques con la constraint UNIQUE(playlistId, sortOrder)
+      prisma.playlistItem.update({ where: { id: itemId }, data: { sortOrder: sortOrder + 100000 } }),
+    ),
+  );
+  await prisma.$transaction(
+    items.map(({ itemId, sortOrder }) => prisma.playlistItem.update({ where: { id: itemId }, data: { sortOrder } })),
+  );
+  res.status(204).send();
+});

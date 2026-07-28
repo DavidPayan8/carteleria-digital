@@ -1,0 +1,46 @@
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">Biblioteca Multimedia</h1>
+    <p class="text-sm text-on-surface-variant">Gestiona y organiza tus fotos y videos.</p>
+  </div>
+  <label
+    class="cursor-pointer rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary hover:opacity-90"
+  >
+    {{ uploading() ? "Subiendo..." : "Subir archivo" }}
+    <input type="file" accept="image/*,video/*" class="hidden" (change)="onFileSelected($event)" [disabled]="uploading()" />
+  </label>
+</div>
+
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+  @for (item of media(); track item.id) {
+    <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
+      <div class="relative aspect-video bg-surface-container-high">
+        @if (item.type === 0) {
+          <img [src]="item.url" [alt]="item.fileName" class="h-full w-full object-cover" />
+        } @else {
+          <video [src]="item.url" class="h-full w-full object-cover"></video>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/90">▶</div>
+          </div>
+        }
+        @if (item.width && item.height) {
+          <span class="absolute right-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-mono text-white">
+            {{ item.width }}x{{ item.height }}
+          </span>
+        }
+        <span class="absolute left-1.5 bottom-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-mono text-white">
+          {{ formatSize(item.sizeBytes) }}
+        </span>
+      </div>
+      <div class="p-3">
+        <div class="truncate text-sm font-medium" [title]="item.fileName">{{ item.fileName }}</div>
+        <div class="mt-0.5 text-xs text-on-surface-variant">{{ item.mimeType }}</div>
+        <button (click)="remove(item.id)" class="mt-2 text-xs font-medium text-danger hover:underline">Borrar</button>
+      </div>
+    </div>
+  } @empty {
+    <p class="col-span-full py-10 text-center text-sm text-on-surface-variant">
+      Sin archivos todavía. Sube tu primera foto o video.
+    </p>
+  }
+</div>
