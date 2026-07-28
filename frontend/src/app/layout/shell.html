@@ -1,0 +1,69 @@
+<div class="flex h-screen w-screen overflow-hidden bg-surface">
+  <!-- Sidebar -->
+  <aside class="flex w-sidebar shrink-0 flex-col bg-primary text-white">
+    <div class="flex items-center gap-2 px-5 py-5">
+      <div class="flex h-8 w-8 items-center justify-center rounded bg-white text-primary font-bold">S</div>
+      <div>
+        <div class="text-sm font-semibold leading-tight">SignageFlow</div>
+        <div class="text-xs text-white/50 leading-tight">Cartelería Digital</div>
+      </div>
+    </div>
+
+    <nav class="mt-2 flex-1 space-y-0.5 px-3">
+      @for (item of visibleNavItems(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-white/10 text-white"
+          class="flex items-center gap-3 rounded px-3 py-2 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4 shrink-0">
+            <path [attr.d]="item.icon" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="border-t border-white/10 px-4 py-4">
+      <div class="text-xs text-white/50">{{ auth.user()?.email }}</div>
+      <button (click)="logout()" class="mt-2 text-xs font-medium text-white/70 hover:text-white">
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex h-16 shrink-0 items-center justify-between border-b border-border bg-surface-container px-6">
+      <div class="flex items-center gap-3">
+        @if (workspace.organizations().length > 0) {
+          <select
+            class="rounded border border-border bg-white px-2 py-1.5 text-xs font-medium"
+            [ngModel]="workspace.selectedOrganizationId()"
+            (ngModelChange)="onOrganizationChange($event)"
+          >
+            @for (org of workspace.organizations(); track org.id) {
+              <option [value]="org.id">{{ org.name }}</option>
+            }
+          </select>
+        }
+        @if (workspace.locations().length > 0) {
+          <select
+            class="rounded border border-border bg-white px-2 py-1.5 text-xs font-medium"
+            [ngModel]="workspace.selectedLocationId()"
+            (ngModelChange)="onLocationChange($event)"
+          >
+            @for (loc of workspace.locations(); track loc.id) {
+              <option [value]="loc.id">{{ loc.name }}</option>
+            }
+          </select>
+        }
+      </div>
+      <div class="text-xs text-on-surface-variant">{{ auth.user()?.fullName }}</div>
+    </header>
+
+    <main class="flex-1 overflow-auto p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

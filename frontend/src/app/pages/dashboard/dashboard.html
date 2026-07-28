@@ -1,0 +1,32 @@
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+  @if (workspace.selectedOrganization(); as org) {
+    <p class="text-sm text-on-surface-variant">
+      {{ org.name }}@if (workspace.selectedLocation(); as loc) { · {{ loc.name }} }
+    </p>
+  }
+</div>
+
+@if (stats(); as s) {
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="rounded-lg border border-border bg-surface-container p-4">
+      <div class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Pantallas</div>
+      <div class="mt-2 text-2xl font-semibold">{{ s.screensTotal }}</div>
+      <div class="mt-1 text-xs text-success">{{ s.screensOnline }} online</div>
+    </div>
+    <div class="rounded-lg border border-border bg-surface-container p-4">
+      <div class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Archivos multimedia</div>
+      <div class="mt-2 text-2xl font-semibold">{{ s.mediaTotal }}</div>
+    </div>
+    <div class="rounded-lg border border-border bg-surface-container p-4">
+      <div class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Playlists</div>
+      <div class="mt-2 text-2xl font-semibold">{{ s.playlistsTotal }}</div>
+    </div>
+    <div class="rounded-lg border border-border bg-surface-container p-4">
+      <div class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Pantallas offline</div>
+      <div class="mt-2 text-2xl font-semibold text-danger">{{ s.screensTotal - s.screensOnline }}</div>
+    </div>
+  </div>
+} @else {
+  <p class="text-sm text-on-surface-variant">Selecciona una organización para ver sus métricas.</p>
+}

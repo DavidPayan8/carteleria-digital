@@ -1,0 +1,256 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  name      String   @db.NVarChar(200)
+  slug      String   @unique @db.NVarChar(100)
+  createdAt DateTime @default(now()) @db.DateTime2
+  updatedAt DateTime @updatedAt @db.DateTime2
+
+  locations Location[]
+  users     User[]
+  media     Media[]
+  playlists Playlist[]
+
+  @@map("Organizations")
+}
+
+model Location {
+  id             String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  organizationId String   @db.UniqueIdentifier
+  name           String   @db.NVarChar(200)
+  address        String?  @db.NVarChar(400)
+  timeZone       String   @default("Europe/Madrid") @db.NVarChar(100)
+  createdAt      DateTime @default(now()) @db.DateTime2
+  updatedAt      DateTime @updatedAt @db.DateTime2
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screenGroups ScreenGroup[]
+  screens      Screen[]
+  userRoles    UserRole[]
+  playlists    Playlist[]
+  schedules    Schedule[]
+
+  @@index([organizationId])
+  @@map("Locations")
+}
+
+// OrganizationId es NULL únicamente para usuarios SuperAdmin (acceso global).
+// Cualquier otro usuario pertenece a una única Organization.
+model User {
+  id             String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  organizationId String?  @db.UniqueIdentifier
+  email          String   @unique @db.NVarChar(256)
+  passwordHash   String   @db.NVarChar(256)
+  fullName       String   @db.NVarChar(200)
+  createdAt      DateTime @default(now()) @db.DateTime2
+  updatedAt      DateTime @updatedAt @db.DateTime2
+
+  organization  Organization? @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles         UserRole[]
+  uploadedMedia Media[]
+  auditLogs     AuditLog[]
+
+  @@index([organizationId])
+  @@map("Users")
+}
+
+// Seed: 1=SuperAdmin, 2=OrgAdmin, 3=LocationAdmin, 4=Viewer
+model Role {
+  id   Int    @id @db.TinyInt
+  name String @unique @db.NVarChar(50)
+
+  userRoles UserRole[]
+
+  @@map("Roles")
+}
+
+model UserRole {
+  id         String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  userId     String   @db.UniqueIdentifier
+  roleId     Int      @db.TinyInt
+  locationId String?  @db.UniqueIdentifier // NULL = aplica a toda la organización
+  createdAt  DateTime @default(now()) @db.DateTime2
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  role     Role      @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([userId, roleId, locationId])
+  @@index([userId])
+  @@map("UserRoles")
+}
+
+model ScreenGroup {
+  id         String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  locationId String   @db.UniqueIdentifier
+  name       String   @db.NVarChar(200)
+  createdAt  DateTime @default(now()) @db.DateTime2
+
+  location  Location   @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screens   Screen[]
+  schedules Schedule[]
+
+  @@index([locationId])
+  @@map("ScreenGroups")
+}
+
+model Screen {
+  id                     String  @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  locationId             String  @db.UniqueIdentifier
+  screenGroupId          String? @db.UniqueIdentifier
+  name                   String  @db.NVarChar(200)
+  orientation            Int     @default(0) @db.TinyInt // 0=landscape, 1=portrait
+  resolutionWidth        Int?
+  resolutionHeight       Int?
+  pollingIntervalSeconds Int     @default(20)
+
+  // Emparejamiento tipo Chromecast
+  pairingCode          String?   @unique @db.Char(6)
+  pairingCodeExpiresAt DateTime? @db.DateTime2
+  authTokenHash        String?   @db.NVarChar(256)
+  pairedAt             DateTime? @db.DateTime2
+
+  lastSeenAt    DateTime? @db.DateTime2
+  lastSeenIp    String?   @db.VarChar(45)
+  playerVersion String?   @db.NVarChar(50)
+
+  createdAt DateTime @default(now()) @db.DateTime2
+  updatedAt DateTime @updatedAt @db.DateTime2
+
+  location    Location          @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screenGroup ScreenGroup?      @relation(fields: [screenGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  schedules   Schedule[]
+  heartbeats  ScreenHeartbeat[]
+
+  @@index([locationId])
+  @@map("Screens")
+}
+
+model Media {
+  id                String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  organizationId    String   @db.UniqueIdentifier
+  type              Int      @db.TinyInt // 0=image, 1=video
+  fileName          String   @db.NVarChar(300)
+  mimeType          String   @db.NVarChar(100)
+  sizeBytes         BigInt
+  blobContainer     String   @db.NVarChar(100)
+  blobPath          String   @db.NVarChar(500)
+  thumbnailBlobPath String?  @db.NVarChar(500)
+  durationSeconds   Decimal? @db.Decimal(10, 2) // solo video
+  width             Int?
+  height            Int?
+  uploadedByUserId  String?  @db.UniqueIdentifier
+  createdAt         DateTime @default(now()) @db.DateTime2
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  uploadedBy    User?          @relation(fields: [uploadedByUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  playlistItems PlaylistItem[]
+
+  @@index([organizationId])
+  @@map("Media")
+}
+
+model Playlist {
+  id                         String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  organizationId             String   @db.UniqueIdentifier
+  locationId                 String?  @db.UniqueIdentifier // NULL = plantilla reutilizable a nivel org
+  name                       String   @db.NVarChar(200)
+  defaultItemDurationSeconds Int      @default(10)
+  createdAt                  DateTime @default(now()) @db.DateTime2
+  updatedAt                  DateTime @updatedAt @db.DateTime2
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location     Location?      @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items        PlaylistItem[]
+  schedules    Schedule[]
+
+  @@index([organizationId])
+  @@index([locationId])
+  @@map("Playlists")
+}
+
+model PlaylistItem {
+  id                      String @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  playlistId              String @db.UniqueIdentifier
+  mediaId                 String @db.UniqueIdentifier
+  sortOrder               Int
+  durationSecondsOverride Int?
+  transitionType          String @default("fade") @db.NVarChar(30)
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  media    Media    @relation(fields: [mediaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([playlistId, sortOrder])
+  @@index([playlistId])
+  @@map("PlaylistItems")
+}
+
+// Se aplica a UNA de: screenId, screenGroupId o locationId (validado en la app;
+// SQL Server no soporta CHECK constraints portables vía Prisma migrate, se añade
+// a mano en la migración generada — ver README de este backend).
+model Schedule {
+  id            String    @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  playlistId    String    @db.UniqueIdentifier
+  screenId      String?   @db.UniqueIdentifier
+  screenGroupId String?   @db.UniqueIdentifier
+  locationId    String?   @db.UniqueIdentifier
+  name          String    @db.NVarChar(200)
+  priority      Int       @default(0)
+  startDate     DateTime  @db.Date
+  endDate       DateTime? @db.Date
+  daysOfWeek    Int       @default(127) @db.TinyInt // bitmask: 1=Lun,2=Mar,4=Mie,8=Jue,16=Vie,32=Sab,64=Dom
+  startTime     DateTime  @default(dbgenerated("'00:00:00'")) @db.Time
+  endTime       DateTime  @default(dbgenerated("'23:59:59'")) @db.Time
+  createdAt     DateTime  @default(now()) @db.DateTime2
+  updatedAt     DateTime  @updatedAt @db.DateTime2
+
+  playlist    Playlist     @relation(fields: [playlistId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screen      Screen?      @relation(fields: [screenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screenGroup ScreenGroup? @relation(fields: [screenGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location    Location?    @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([screenId])
+  @@index([screenGroupId])
+  @@index([locationId])
+  @@map("Schedules")
+}
+
+model ScreenHeartbeat {
+  id               BigInt   @id @default(autoincrement())
+  screenId         String   @db.UniqueIdentifier
+  seenAt           DateTime @default(now()) @db.DateTime2
+  ip               String?  @db.VarChar(45)
+  playerVersion    String?  @db.NVarChar(50)
+  activePlaylistId String?  @db.UniqueIdentifier
+
+  screen Screen @relation(fields: [screenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([screenId, seenAt])
+  @@map("ScreenHeartbeats")
+}
+
+// Borrado físico en todas las tablas de negocio; cada DELETE guarda aquí un
+// snapshot JSON del registro antes de borrarlo (quién, qué, cuándo).
+model AuditLog {
+  id                BigInt   @id @default(autoincrement())
+  entityName        String   @db.NVarChar(100)
+  entityId          String   @db.UniqueIdentifier
+  organizationId    String?  @db.UniqueIdentifier
+  performedByUserId String?  @db.UniqueIdentifier
+  dataSnapshot      String   @db.NVarChar(Max)
+  performedAt       DateTime @default(now()) @db.DateTime2
+
+  performedBy User? @relation(fields: [performedByUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([entityName, entityId])
+  @@index([organizationId])
+  @@map("AuditLogs")
+}
