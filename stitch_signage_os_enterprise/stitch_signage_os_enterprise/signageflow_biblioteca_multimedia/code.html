@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SignageFlow - Biblioteca Multimedia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#bec6e0",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-container": "#98805d",
+                        "on-secondary-container": "#fffbff",
+                        "surface-tint": "#565e74",
+                        "on-primary-container": "#7c839b",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-secondary-fixed": "#07006c",
+                        "secondary-container": "#6063ee",
+                        "on-background": "#0b1c30",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#271901",
+                        "surface-variant": "#d3e4fe",
+                        "primary-container": "#131b2e",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "primary": "#000000",
+                        "secondary": "#4648d4",
+                        "on-tertiary-fixed": "#271901",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#eff4ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed": "#fcdeb5",
+                        "surface": "#f8f9ff",
+                        "outline": "#76777d",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-surface": "#213145",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "surface-container-highest": "#d3e4fe",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#c6c6cd",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary": "#000000",
+                        "secondary-fixed": "#e1e0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "sidebar-width": "260px",
+                        "unit": "4px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-full py-lg px-md w-sidebar-width fixed left-0 top-0 border-r border-outline-variant bg-background z-20">
+<div class="mb-xl px-sm">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-headline text-headline">S</div>
+<div>
+<h1 class="font-headline text-headline text-on-background">SignageFlow</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Precision CMS</p>
+</div>
+</div>
+</div>
+<div class="mb-lg px-sm">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                New Broadcast
+            </button>
+</div>
+<ul class="flex-1 space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">monitor</span>
+                    Screens
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-secondary-container text-on-secondary-container font-bold font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">perm_media</span>
+                    Media Library
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">featured_play_list</span>
+                    Playlists
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+                    Schedules
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">assignment</span>
+                    Audit
+                </a>
+</li>
+</ul>
+<div class="mt-auto pt-lg border-t border-outline-variant space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-sidebar-width flex flex-col h-full bg-background relative z-10">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-12 px-lg w-full bg-surface border-b border-outline-variant sticky top-0 z-20">
+<div class="flex-1"></div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-all p-xs rounded focus:outline-none focus-within:ring-2 focus-within:ring-secondary-container">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all p-xs rounded focus:outline-none focus-within:ring-2 focus-within:ring-secondary-container">
+<span class="material-symbols-outlined" style="font-size: 20px;">help_outline</span>
+</button>
+<div class="w-px h-4 bg-outline-variant mx-xs"></div>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Sign Out</button>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 overflow-auto p-md md:p-xl flex gap-xl relative">
+<!-- Library Grid -->
+<div class="flex-1 flex flex-col min-w-0 transition-all duration-300 pr-0" id="mainGrid">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-lg gap-md">
+<div>
+<h2 class="font-display-md text-display-md text-on-background">Biblioteca Multimedia</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Gestiona y organiza tus activos digitales</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 18px;">upload</span>
+                        Subir Archivo
+                    </button>
+</div>
+<!-- Filters -->
+<div class="bg-surface border border-outline-variant rounded p-sm mb-lg flex flex-wrap gap-sm items-center">
+<div class="relative flex-1 min-w-[200px]">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline" style="font-size: 18px;">search</span>
+<input class="w-full pl-xl pr-sm py-xs border border-outline-variant rounded bg-surface font-body-md text-body-md text-on-background focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all h-8" placeholder="Buscar archivos..." type="text"/>
+</div>
+<div class="w-px h-6 bg-outline-variant hidden md:block mx-xs"></div>
+<select class="border border-outline-variant rounded bg-surface font-body-md text-body-md text-on-background py-xs pl-sm pr-lg focus:border-secondary focus:ring-1 focus:ring-secondary outline-none h-8 appearance-none bg-no-repeat bg-[right_8px_center] bg-[length:16px]" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2376777d%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E');">
+<option value="">Tipo de Archivo</option>
+<option value="img">Imagen</option>
+<option value="vid">Vídeo</option>
+<option value="doc">Documento</option>
+</select>
+<select class="border border-outline-variant rounded bg-surface font-body-md text-body-md text-on-background py-xs pl-sm pr-lg focus:border-secondary focus:ring-1 focus:ring-secondary outline-none h-8 appearance-none bg-no-repeat bg-[right_8px_center] bg-[length:16px]" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2376777d%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E');">
+<option value="">Resolución</option>
+<option value="4k">4K (3840x2160)</option>
+<option value="fhd">FHD (1920x1080)</option>
+<option value="hd">HD (1280x720)</option>
+</select>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md pb-xl">
+<!-- Asset Card 1 -->
+<div class="bg-surface border border-outline-variant rounded hover:border-secondary transition-colors group cursor-pointer flex flex-col h-full" onclick="togglePanel(true)">
+<div class="relative aspect-video w-full bg-surface-container-low border-b border-outline-variant overflow-hidden rounded-t">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A clean, modern flat-lay composition showing digital design assets on a bright minimalist desk setup. Soft, diffused lighting typical of high-end corporate photography. The aesthetic relies on crisp whites, subtle grays, and precise geometric arrangement of objects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQiWIIfMq6RveLTWKdTmPEO89K8fnQL9wdaIA7Da2cWvluK4vtCpWZren8B6nb1vxG7ge49QHOp3w7xlrtSUlB4hXo9iV288umfEG9JsHZChVoCRRwt1nwu86gQwb_1JkdjF5m-TMgV3yZ-dULgV9VOUO-X5G1xZSOP3QCsnF5uCPpR4-LXA0zrA3-ZL2KbbYaNu-wJfd0K69EKXygK6RkeiCP51iRsb7YU8IIxRcILkeZBvGfhfE"/>
+<div class="absolute top-sm right-sm bg-surface-container bg-opacity-90 px-xs py-1 rounded border border-outline-variant font-mono text-mono text-on-surface">1920x1080</div>
+<div class="absolute bottom-sm left-sm bg-surface-container bg-opacity-90 px-xs py-1 rounded border border-outline-variant font-mono text-mono text-on-surface">2.4 MB</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex justify-between items-start gap-sm mb-sm">
+<h3 class="font-label-md text-label-md text-on-background truncate flex-1" title="Campaña_Otoño_Main.jpg">Campaña_Otoño_Main.jpg</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex-shrink-0" onclick="event.stopPropagation()">
+<span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+</button>
+</div>
+<div class="mt-auto space-y-1">
+<p class="font-mono text-[11px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined" style="font-size: 14px;">description</span> image/jpeg</p>
+<p class="font-body-md text-[12px] text-on-surface-variant">Admin • 12 Oct 2023</p>
+</div>
+</div>
+</div>
+<!-- Asset Card 2 (Video) -->
+<div class="bg-surface border border-outline-variant rounded hover:border-secondary transition-colors group cursor-pointer flex flex-col h-full" onclick="togglePanel(true)">
+<div class="relative aspect-video w-full bg-surface-container-low border-b border-outline-variant overflow-hidden rounded-t">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="An abstract 3D render of flowing liquid metal or digital particles in a sterile white environment. The image is crisp, high-contrast, and represents dynamic motion frozen in time. The lighting is studio-quality, emphasizing the sleek, modern corporate identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzZIzpK_sQknX75Uv7z1yBbcoRGsqPXsn7en75XhPLeRSusXP8uMiSBm-e1eAyoM_PUKMfFO8mPO9JlqAhtqDuh0T7qPZ-6qqzeR3yhhIwUBN8uoidMTfIA3as7_75LZLysh0IwB246JFhyHmF_ZT8hrMabGpSXPK6USHjyH1VPFMjfXqYZVgDpcQ7RdM_Q5KKjXS7l85gh-av7qCXY1ix5_waimsE4WpzigG0HykaxH7PEsjXOuo"/>
+<div class="absolute inset-0 flex items-center justify-center bg-primary bg-opacity-20 group-hover:bg-opacity-10 transition-all">
+<div class="w-10 h-10 rounded-full bg-surface shadow-sm border border-outline-variant flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" data-weight="fill" style="font-size: 24px;">play_arrow</span>
+</div>
+</div>
+<div class="absolute top-sm right-sm bg-surface-container bg-opacity-90 px-xs py-1 rounded border border-outline-variant font-mono text-mono text-on-surface">3840x2160</div>
+<div class="absolute bottom-sm left-sm flex gap-xs">
+<div class="bg-surface-container bg-opacity-90 px-xs py-1 rounded border border-outline-variant font-mono text-mono text-on-surface">145 MB</div>
+<div class="bg-surface-container bg-opacity-90 px-xs py-1 rounded border border-outline-variant font-mono text-mono text-on-surface">00:30</div>
+</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex justify-between items-start gap-sm mb-sm">
+<h3 class="font-label-md text-label-md text-on-background truncate flex-1" title="Promo_Verano_2024.mp4">Promo_Verano_2024.mp4</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex-shrink-0" onclick="event.stopPropagation()">
+<span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+</button>
+</div>
+<div class="mt-auto space-y-1">
+<p class="font-mono text-[11px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined" style="font-size: 14px;">movie</span> video/mp4</p>
+<p class="font-body-md text-[12px] text-on-surface-variant">Admin • 10 Oct 2023</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Detail Side Panel (Slide-over) -->
+<div class="fixed inset-y-0 right-0 w-[400px] bg-surface border-l border-outline-variant shadow-[-4px_0_24px_rgba(0,0,0,0.05)] transform translate-x-full transition-transform duration-300 z-30 flex flex-col" id="detailPanel">
+<div class="flex items-center justify-between p-md border-b border-outline-variant">
+<div class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span>Biblioteca</span>
+<span class="material-symbols-outlined" style="font-size: 14px;">chevron_right</span>
+<span class="text-on-background">Detalles</span>
+</div>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-low rounded transition-colors" onclick="togglePanel(false)">
+<span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-auto p-md space-y-lg">
+<div class="aspect-video w-full bg-surface-container-low border border-outline-variant rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A detailed close-up of a high-resolution display showing structural architectural lines. Minimalist corporate design language with sharp focus, precise geometry, and an exceptionally clean white and slate gray color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxDAi3iRnHYofQ8k4CDKY3IdecDh2N2LZkSqUxkjliOQabjO8xiNJQAD6JX1Myefbyoh8P6vDGytpwQcjBbYh8iB6Mi4uI5sZ17Im4DjS9trr82D40uyQihwTGPKHN7737YT7AC82zcg3DFsXCtchG7CKTyrJRmKHVJRLQVFGx5zVYj-abkOeywcv8g6ETzvko5ncW7ZApVpqA6d63wXe8IHaBYzY75U2yt8AVTqYL2WDonEByQys"/>
+</div>
+<div>
+<h3 class="font-display-md text-headline text-on-background mb-xs break-all">Promo_Verano_2024.mp4</h3>
+<div class="flex items-center gap-sm mt-sm">
+<span class="px-xs py-1 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm border border-secondary-fixed-dim">Vídeo</span>
+<span class="font-mono text-mono text-on-surface-variant">145 MB</span>
+</div>
+</div>
+<div class="h-px w-full bg-outline-variant"></div>
+<div class="space-y-sm">
+<h4 class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Metadatos Técnicos</h4>
+<div class="grid grid-cols-2 gap-y-sm gap-x-md text-sm">
+<div class="font-body-md text-body-md text-on-surface-variant">Ruta</div>
+<div class="font-mono text-mono text-on-background break-all">/assets/vids/promo24.mp4</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Dimensiones</div>
+<div class="font-mono text-mono text-on-background">3840 x 2160</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Relación</div>
+<div class="font-mono text-mono text-on-background">16:9</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Duración</div>
+<div class="font-mono text-mono text-on-background">00:00:30.000</div>
+</div>
+</div>
+<div class="h-px w-full bg-outline-variant"></div>
+<div class="space-y-sm">
+<h4 class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Uso en Playlists</h4>
+<ul class="space-y-xs">
+<li class="flex items-center justify-between py-1">
+<a class="font-body-md text-body-md text-secondary hover:underline flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">featured_play_list</span>
+                                    Lobby_Principal_Mañana
+                                </a>
+<span class="font-mono text-[12px] text-on-surface-variant">Activa</span>
+</li>
+<li class="flex items-center justify-between py-1">
+<a class="font-body-md text-body-md text-secondary hover:underline flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">featured_play_list</span>
+                                    Campaña_Global_V2
+                                </a>
+<span class="font-mono text-[12px] text-on-surface-variant">Inactiva</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="p-md border-t border-outline-variant bg-surface flex justify-end gap-sm mt-auto">
+<button class="px-md py-sm border border-outline-variant rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors">
+                        Reemplazar
+                    </button>
+<button class="px-md py-sm bg-primary border border-primary rounded font-label-md text-label-md text-on-primary hover:bg-opacity-90 transition-colors">
+                        Editar
+                    </button>
+</div>
+</div>
+<!-- Overlay for mobile when panel is open -->
+<div class="fixed inset-0 bg-primary bg-opacity-40 z-20 hidden opacity-0 transition-opacity duration-300" id="panelOverlay" onclick="togglePanel(false)"></div>
+</main>
+</div>
+<script>
+        function togglePanel(show) {
+            const panel = document.getElementById('detailPanel');
+            const overlay = document.getElementById('panelOverlay');
+            const mainGrid = document.getElementById('mainGrid');
+            const isDesktop = window.innerWidth >= 1440;
+
+            if (show) {
+                panel.classList.remove('translate-x-full');
+                if (isDesktop) {
+                    mainGrid.classList.add('pr-[400px]');
+                } else {
+                    overlay.classList.remove('hidden');
+                    // Small delay to allow display block to apply before transition
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                }
+            } else {
+                panel.classList.add('translate-x-full');
+                mainGrid.classList.remove('pr-[400px]');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // Handle window resize to adjust layout if panel is open
+        window.addEventListener('resize', () => {
+            const panel = document.getElementById('detailPanel');
+            const mainGrid = document.getElementById('mainGrid');
+            const overlay = document.getElementById('panelOverlay');
+            const isDesktop = window.innerWidth >= 1440;
+            const isOpen = !panel.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                if (isDesktop) {
+                    mainGrid.classList.add('pr-[400px]');
+                    overlay.classList.add('hidden');
+                    overlay.classList.add('opacity-0');
+                } else {
+                    mainGrid.classList.remove('pr-[400px]');
+                    overlay.classList.remove('hidden');
+                    overlay.classList.remove('opacity-0');
+                }
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Playlist Visual Editor - SignageFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-container-low": "#eff4ff",
+                        "surface": "#f8f9ff",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-fixed": "#271901",
+                        "surface-container-high": "#dce9ff",
+                        "inverse-primary": "#bec6e0",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "tertiary-fixed": "#fcdeb5",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-container": "#271901",
+                        "on-secondary-container": "#fffbff",
+                        "background": "#f8f9ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary-container": "#6063ee",
+                        "inverse-surface": "#213145",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary-container": "#98805d",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-fixed": "#dae2fd",
+                        "primary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface-dim": "#cbdbf5",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container": "#e5eeff",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed": "#07006c",
+                        "outline-variant": "#c6c6cd",
+                        "secondary": "#4648d4",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary-container": "#131b2e",
+                        "outline": "#76777d",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#e1e0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "unit": "4px",
+                        "2xl": "48px",
+                        "container-max": "1440px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "sidebar-width": "260px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "headline": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-hidden">
+<!-- TopNavBar -->
+<header class="h-16 fixed top-0 right-0 z-10 bg-surface dark:bg-surface border-b border-outline-variant flex items-center justify-between px-lg ml-sidebar-width w-[calc(100%-theme(spacing.sidebar-width))]">
+<div class="flex items-center gap-md">
+<span class="font-headline text-headline text-primary">SignageFlow</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface hover:text-primary transition-colors opacity-80 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface hover:text-primary transition-colors opacity-80 duration-200">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label-md hover:bg-opacity-90 transition-opacity">
+                Create New
+            </button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A small, professional headshot photo of a diverse professional in a corporate setting, clean light mode aesthetic with soft overhead lighting, suitable for a user profile avatar. Sharp focus, solid neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6STTuuDBI41tmUuTHOTa3AJispOtrWBrn8ecHI1W56Jz2u4a2RoGTsP0g5OokwM9Ml_VK4u8mA0XiRgn-fcMuAbV5dDXPc1bU7Pyp7n6esvEGM-xu5WLg4Zd-zgLD9msXUzca3WwE8F8PMosMaZvMHFT4pRTo8o6QlnlJO8dnCFRdfiSVAlWhKUtDyc6FJrvKSwhB73f3LrYbwUxB_UJuL7NoT1Vp87koCC6rW4f8bSuYcsSBbv4"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="w-sidebar-width h-screen fixed left-0 top-0 bg-primary-container dark:bg-primary-container border-r border-outline-variant flex flex-col p-md z-20">
+<div class="mb-xl flex items-center gap-sm px-2">
+<div class="w-8 h-8 rounded bg-surface flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">monitor</span>
+</div>
+<div>
+<h1 class="font-headline text-headline text-primary-fixed-dim truncate">SignageFlow</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container truncate">Enterprise CMS</p>
+</div>
+</div>
+<ul class="flex flex-col gap-xs flex-grow">
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">monitor</span>
+<span class="font-label-md text-label-md">Screens</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">perm_media</span>
+<span class="font-label-md text-label-md">Media Library</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded bg-secondary-container text-on-secondary-container font-semibold scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">featured_play_list</span>
+<span class="font-label-md text-label-md">Playlists</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<span class="font-label-md text-label-md">Schedules</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto border-t border-on-primary-fixed-variant pt-md">
+<ul class="flex flex-col gap-xs">
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-primary-fixed-dim hover:bg-on-primary-fixed-variant transition-colors scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-lg">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Workspace -->
+<main class="ml-sidebar-width mt-16 h-[calc(100vh-64px)] flex">
+<!-- Media Asset Panel (Left) -->
+<aside class="w-80 bg-surface border-r border-outline-variant flex flex-col flex-shrink-0 h-full">
+<div class="p-md border-b border-outline-variant">
+<h2 class="font-headline text-headline mb-md">Media Assets</h2>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-sm">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded pl-10 pr-3 py-2 font-body-md text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all" placeholder="Search media..." type="text"/>
+</div>
+<div class="flex gap-2 mt-md">
+<button class="px-3 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">All</button>
+<button class="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">Images</button>
+<button class="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-sm text-label-sm transition-colors">Videos</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-sm gap-2 flex flex-col custom-scrollbar">
+<!-- Asset Item 1 -->
+<div class="group flex items-center p-2 rounded hover:bg-surface-container-low border border-transparent hover:border-outline-variant cursor-grab transition-all">
+<div class="w-16 h-12 bg-surface-container-highest rounded overflow-hidden relative shrink-0">
+<img alt="Corp Promo 1" class="w-full h-full object-cover" data-alt="A bright, abstract geometric corporate background image featuring subtle blue and grey intersecting planes, clean minimalist aesthetic, suitable for digital signage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8_SC2eedPI8chrv3-5CK93kVBGo7UpKVqR8x1RzgJgSSIbK-8p2acH0t6Sehdmg0eGlqJ78CBtSze6o9R0n-LlV5CtiTGiAPrlHWX7iyGqQSszlJ-VJgfPCpLg-BMRysBG7pWLFGi1SKut9MATA6mKDqHfzp2mihtOdLJMiqONxngwRAFNMYl-5JWoG3V55oOL_wtTphhaDh1d1DcnyZqRqf2_ubc4lDjdOdYvlR2Mpr50ttzNQc"/>
+<span class="absolute bottom-1 right-1 bg-primary/80 text-white text-[10px] px-1 rounded">IMAGE</span>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<p class="font-label-md text-label-md truncate">Corp_Promo_Q3.jpg</p>
+<p class="font-mono text-mono text-on-surface-variant text-xs">1920x1080 • 1.2MB</p>
+</div>
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+</div>
+<!-- Asset Item 2 -->
+<div class="group flex items-center p-2 rounded hover:bg-surface-container-low border border-transparent hover:border-outline-variant cursor-grab transition-all">
+<div class="w-16 h-12 bg-surface-container-highest rounded overflow-hidden relative shrink-0">
+<img alt="Welcome Video" class="w-full h-full object-cover" data-alt="A professional corporate video thumbnail showing a modern office space with people collaborating in a brightly lit glass meeting room, modern light mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDueNlZDJvPPHU-JlGCmldVCeCLHDPk_Vb05qOQj2J2_Y5gcH90YCuBYlMIVhz2BSK0hP-jgPsP44I1pCH9Hc78FhgTPIfmr4GwQz8pB_FwMinauOpmSETU55uLjzgdJi06xb2IxyDsizf6kmpKwW74LxWXyz1LEkEZuLmzIb5FlAGHYXD-XUENISKxI39Rih9eFHXpvnIz0kkC0eUxReBGw6_vCVZuv0-CfQ44CI4zyeL2qyZNCHQ"/>
+<span class="absolute bottom-1 right-1 bg-primary/80 text-white text-[10px] px-1 rounded flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">play_arrow</span> 00:30
+                        </span>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<p class="font-label-md text-label-md truncate">Welcome_Loop.mp4</p>
+<p class="font-mono text-mono text-on-surface-variant text-xs">1080p • 15.4MB</p>
+</div>
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+</div>
+<!-- Asset Item 3 -->
+<div class="group flex items-center p-2 rounded hover:bg-surface-container-low border border-transparent hover:border-outline-variant cursor-grab transition-all">
+<div class="w-16 h-12 bg-surface-container-highest rounded overflow-hidden relative shrink-0">
+<img alt="Stats Graphic" class="w-full h-full object-cover" data-alt="A clean, minimalist infographic showing quarterly growth statistics with sleek bar charts and a light grey background, professional enterprise data visualization style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtAbFRpHkXiOsX-xZm_qApSiea9x7IyCXkY3qj0sYDd-QxFn5WFrgJINUTOXQ4pr20i-YZa9Y1LjGdVerZRrDmG_Jtrn29iLKJMqIa36gCwV2y_HJ49RPFb98bv7lixGW8K11HI63GZt9Yo4On0NZjtZt_RIcrdMfRzv2dXF7k7LJAKXUd25h4zm1JNCGOw8fOjmx0KapZpnNA3Iv_FlayW02yzKMEZh-hrvzC4p7g6LuwYZPKqTc"/>
+<span class="absolute bottom-1 right-1 bg-primary/80 text-white text-[10px] px-1 rounded">IMAGE</span>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<p class="font-label-md text-label-md truncate">Q2_Stats_Display.png</p>
+<p class="font-mono text-mono text-on-surface-variant text-xs">1920x1080 • 850KB</p>
+</div>
+<span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+</div>
+</div>
+</aside>
+<!-- Timeline Canvas (Center/Right) -->
+<section class="flex-1 flex flex-col bg-surface-container-low relative">
+<!-- Editor Controls -->
+<div class="h-14 border-b border-outline-variant bg-surface flex items-center justify-between px-lg shrink-0">
+<div class="flex items-center gap-md">
+<h2 class="font-headline text-headline">Lobby Welcome Sequence</h2>
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant rounded text-xs font-mono">Total: 01:15</span>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center border border-outline-variant rounded bg-surface">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors border-r border-outline-variant" title="Undo">
+<span class="material-symbols-outlined text-sm">undo</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" title="Redo">
+<span class="material-symbols-outlined text-sm">redo</span>
+</button>
+</div>
+<button class="flex items-center gap-2 text-on-surface hover:text-secondary transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-lg">play_circle</span>
+                        Preview
+                    </button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label-md text-label-md hover:bg-opacity-90 transition-opacity shadow-sm">
+                        Save Playlist
+                    </button>
+</div>
+</div>
+<!-- Sequence Area -->
+<div class="flex-1 overflow-x-auto overflow-y-hidden p-xl flex items-center">
+<div class="flex gap-lg items-center h-full max-h-[400px]">
+<!-- Slot 1 -->
+<div class="w-64 h-full bg-surface border border-outline-variant rounded-lg flex flex-col shadow-sm group hover:border-secondary transition-colors relative shrink-0">
+<div class="absolute -top-3 -left-3 w-8 h-8 bg-surface border border-outline-variant rounded-full flex items-center justify-center font-label-sm z-10 text-on-surface shadow-sm">1</div>
+<div class="h-40 bg-surface-container-highest border-b border-outline-variant relative overflow-hidden rounded-t-lg p-2 flex items-center justify-center">
+<img alt="Thumbnail" class="w-full h-full object-cover rounded shadow-sm" data-alt="A bright, abstract geometric corporate background image featuring subtle blue and grey intersecting planes, clean minimalist aesthetic, suitable for digital signage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb46PSthzHE0ARspKJ5YoNbA8qBzERKHf6-3VX3uSx83fTVirb8T1mHPfdqr-4MHsTdaCOL5jmZlXkWoK1-apEcHjUPAFGbFICYXBJjy9P84lpi89UZvMADhKtGw4fYtIVaRaIVrkzp0ZNa_b3D2b_LiRSRHInyizrZAWVu4XQMRtpnMimWSWIFkcz7c-Ibp9bwYPmDagZ5-X6nTfgCTaQGzFXFbpjwpQZ1GBZlJwI6iv-D69qXyU"/>
+<div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 bg-surface/90 text-on-surface rounded border border-outline-variant hover:bg-surface transition-colors" title="Settings">
+<span class="material-symbols-outlined text-xs">settings</span>
+</button>
+<button class="p-1 bg-surface/90 text-error rounded border border-outline-variant hover:bg-error-container transition-colors" title="Remove">
+<span class="material-symbols-outlined text-xs">delete</span>
+</button>
+</div>
+</div>
+<div class="p-md flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-label-md text-label-md truncate mb-xs">Corp_Promo_Q3.jpg</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Corporate Marketing</p>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-md">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Duration</label>
+<select class="w-full border-outline-variant rounded text-sm py-1 pl-2 pr-6 bg-surface focus:border-secondary focus:ring-1 focus:ring-secondary">
+<option>10s</option>
+<option selected="">15s</option>
+<option>30s</option>
+</select>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Transition</label>
+<select class="w-full border-outline-variant rounded text-sm py-1 pl-2 pr-6 bg-surface focus:border-secondary focus:ring-1 focus:ring-secondary">
+<option selected="">Fade</option>
+<option>Slide L</option>
+<option>None</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Between Indicator -->
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0 cursor-pointer hover:bg-secondary-container hover:text-on-secondary-container hover:border-secondary transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+</div>
+<!-- Slot 2 -->
+<div class="w-64 h-full bg-surface border border-outline-variant rounded-lg flex flex-col shadow-sm group hover:border-secondary transition-colors relative shrink-0">
+<div class="absolute -top-3 -left-3 w-8 h-8 bg-surface border border-outline-variant rounded-full flex items-center justify-center font-label-sm z-10 text-on-surface shadow-sm">2</div>
+<div class="h-40 bg-surface-container-highest border-b border-outline-variant relative overflow-hidden rounded-t-lg p-2 flex items-center justify-center">
+<img alt="Thumbnail" class="w-full h-full object-cover rounded shadow-sm" data-alt="A professional corporate video thumbnail showing a modern office space with people collaborating in a brightly lit glass meeting room, modern light mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXRj-0WkLoTzBGyRDofho5rXWYsg8BKAjPX-i1YCiDAMw91U3-xHF7NKVWwzGQPhCYFuQQWIgKMnezox7dthh-lHFeXDRMWWFos6WJotM2794pcYOuHBw89D3XHyIEnkpRq7cJJbEbJKHDeVeBXbaocQSG-UzIowhZF5r8S3BcXeAW4kmTZFcqICcY_M1DkbVE84KTbzeWSfhsA_q3HmKX3vUsOjJUkRZX7YqV9oU33-M4-uIZNAM"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none">
+<span class="material-symbols-outlined text-white text-3xl drop-shadow-md">play_circle</span>
+</div>
+<div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 bg-surface/90 text-on-surface rounded border border-outline-variant hover:bg-surface transition-colors" title="Settings">
+<span class="material-symbols-outlined text-xs">settings</span>
+</button>
+<button class="p-1 bg-surface/90 text-error rounded border border-outline-variant hover:bg-error-container transition-colors" title="Remove">
+<span class="material-symbols-outlined text-xs">delete</span>
+</button>
+</div>
+</div>
+<div class="p-md flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-label-md text-label-md truncate mb-xs">Welcome_Loop.mp4</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Video Asset</p>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-md">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Duration</label>
+<div class="w-full border border-outline-variant rounded text-sm py-1 px-2 bg-surface-container-low text-on-surface-variant cursor-not-allowed flex items-center justify-between">
+<span>30s</span>
+<span class="material-symbols-outlined text-[14px]">lock</span>
+</div>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Transition</label>
+<select class="w-full border-outline-variant rounded text-sm py-1 pl-2 pr-6 bg-surface focus:border-secondary focus:ring-1 focus:ring-secondary">
+<option>Fade</option>
+<option selected="">Slide L</option>
+<option>None</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Empty Slot -->
+<div class="w-64 h-full border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-surface-container-high hover:border-secondary transition-all">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">add_photo_alternate</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Drag media here</span>
+<span class="font-body-md text-body-md text-outline text-xs mt-1">or click to browse</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background-color: #94a3b8; /* slate-400 */
+        }
+    </style>
+</body></html>

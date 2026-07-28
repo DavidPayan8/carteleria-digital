@@ -1,0 +1,485 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Auditoría Técnica - SignageFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#d0e1fb",
+                      "surface-bright": "#fcf8fa",
+                      "surface": "#fcf8fa",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#eae7e9",
+                      "secondary-fixed": "#d3e4fe",
+                      "tertiary-fixed": "#fcdeb5",
+                      "outline-variant": "#c6c6cd",
+                      "on-surface-variant": "#45464d",
+                      "surface-container-highest": "#e4e2e4",
+                      "on-secondary-container": "#54647a",
+                      "surface-container": "#f0edef",
+                      "tertiary-container": "#271901",
+                      "tertiary": "#000000",
+                      "primary-fixed": "#dae2fd",
+                      "on-tertiary-container": "#98805d",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#1b1b1d",
+                      "primary-container": "#131b2e",
+                      "tertiary-fixed-dim": "#dec29a",
+                      "on-tertiary-fixed-variant": "#574425",
+                      "background": "#fcf8fa",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-tertiary-fixed": "#271901",
+                      "inverse-on-surface": "#f3f0f2",
+                      "error-container": "#ffdad6",
+                      "primary-fixed-dim": "#bec6e0",
+                      "primary": "#000000",
+                      "inverse-surface": "#303032",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "on-primary-fixed": "#131b2e",
+                      "on-primary-container": "#7c839b",
+                      "error": "#ba1a1a",
+                      "secondary": "#505f76",
+                      "surface-container-low": "#f6f3f5",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "surface-variant": "#e4e2e4",
+                      "surface-dim": "#dcd9db",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#76777d",
+                      "on-background": "#1b1b1d",
+                      "inverse-primary": "#bec6e0",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "20px",
+                      "drawer_width": "480px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "sidebar_width": "240px",
+                      "sm": "8px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "mono": [
+                              "JetBrains Mono"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dcd9db; border-radius: 4px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #c6c6cd; }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col bg-surface w-sidebar_width h-screen fixed left-0 top-0 border-r border-outline-variant py-md px-sm z-50">
+<div class="mb-xl px-sm flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]">display_settings</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">CMS Admin</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Red Global</p>
+</div>
+</div>
+<button class="mb-lg w-full bg-primary text-on-primary font-label-caps text-label-caps rounded py-2 px-4 hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            Nuevo Contenido
+        </button>
+<div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">monitor</span>
+                Pantallas
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">perm_media</span>
+                Media Library
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">featured_play_list</span>
+                Playlists
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                Programaciones
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">group</span>
+                Usuarios
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-secondary-container text-on-secondary-container font-bold cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+                Auditoría
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Configuración
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-[240px] flex flex-col h-screen overflow-hidden bg-surface-container-low">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant fixed top-0 right-0 w-full md:w-[calc(100%-240px)] h-16 flex justify-between items-center px-xl z-40 bg-surface/80 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="relative w-64 hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Buscar registros..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer focus:outline-none">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer focus:outline-none hidden sm:block">
+<span class="material-symbols-outlined">business_center</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a system administrator, neutral lighting, minimalist background, crisp resolution, suitable for a corporate IT avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTmozjkCYM1PwWUOFaS_npl_9KC9yy1UKf6rzjjhANVUpO2YUl1ev6NzceGUb6i1Tr4Ld2zwsnnKqHQ680kCtB3fN_AwnJDbQsMTaWgqVnPxr2Xagt6cfHjByG628YUpC_Y3mjZGHsa4XamY3WyBE9OfUTwQzz595BpbcM53B_TcL_oZ1a6K-415HUN2dfOVkZwagWyQ-c-3vAWuC3D3Mm03L1mfHk-stpiHk7iB0_GZmq3gh3Hmg">
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto mt-16 p-xl relative">
+<div class="max-w-[1600px] mx-auto flex flex-col gap-lg h-full">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg font-semibold text-on-surface">Auditoría del Sistema</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Registro detallado de acciones, cambios de configuración y eventos de seguridad.</p>
+</div>
+<button class="bg-surface border border-outline-variant text-on-surface font-label-caps text-label-caps rounded py-2 px-4 hover:bg-surface-container-low transition-colors flex items-center gap-2" onclick="alert('Generando reporte de auditoría...'); setTimeout(() =&gt; alert('Exportación completada con éxito'), 500);">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                        Exportar CSV/JSON
+                    </button>
+</div>
+<!-- Filters -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4 flex flex-wrap gap-4 items-end">
+<div class="flex-1 min-w-[200px]">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Rango de Fechas</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">calendar_today</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded py-1.5 pl-9 pr-3 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary" type="text" value="Últimos 7 días">
+</div>
+</div>
+<div class="w-48">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Usuario</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded py-1.5 px-3 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary appearance-none">
+<option>Todos los usuarios</option>
+<option>Admin Principal</option>
+<option>Operador A</option>
+</select>
+</div>
+<div class="w-48">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Entidad</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded py-1.5 px-3 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary appearance-none">
+<option>Todas las entidades</option>
+<option>Pantalla</option>
+<option>Playlist</option>
+<option>Usuario</option>
+<option>Sistema</option>
+</select>
+</div>
+<div class="w-48">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">IP Origen</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">lan</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded py-1.5 pl-9 pr-3 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary" placeholder="Filtrar por IP..." type="text">
+</div>
+</div><div class="w-48">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Acción</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded py-1.5 px-3 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary appearance-none">
+<option>Todas las acciones</option>
+<option>Crear</option>
+<option>Editar</option>
+<option>Eliminar</option>
+<option>Login</option>
+</select>
+</div>
+<button class="bg-surface-container-highest text-on-surface font-label-caps text-label-caps rounded py-1.5 px-3 hover:bg-outline-variant transition-colors flex items-center gap-1 border border-outline-variant h-[34px]">
+<span class="material-symbols-outlined text-[16px]">filter_list_off</span>
+                        Limpiar
+                    </button>
+</div>
+<!-- DataGrid -->
+<div class="flex-1 bg-surface border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<div class="overflow-x-auto custom-scrollbar flex-1">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low/50">
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">Fecha/Hora</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">Usuario</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">Acción</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">Entidad</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">ID Registro</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant font-semibold">Organización</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="toggleInspector(true)">
+<td class="py-3 px-4 text-on-surface-variant whitespace-nowrap">2023-10-27 14:32:01</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs">A</div>
+<span class="text-on-surface font-medium">admin@redglobal.com</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-secondary-container text-on-secondary-container border border-secondary-fixed">
+                                            Editar
+                                        </span>
+</td>
+<td class="py-3 px-4 text-on-surface">Playlist</td>
+<td class="py-3 px-4 font-mono text-mono text-on-surface-variant">PL-8492-X</td>
+<td class="py-3 px-4 text-on-surface">Retail Corp EU</td>
+</tr>
+<!-- More rows... -->
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="toggleInspector(true)">
+<td class="py-3 px-4 text-on-surface-variant whitespace-nowrap">2023-10-27 11:15:44</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-xs">O</div>
+<span class="text-on-surface font-medium">op1@retailcorp.com</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-error-container text-on-error-container border border-error-container">
+                                            Eliminar
+                                        </span>
+</td>
+<td class="py-3 px-4 text-on-surface">Pantalla</td>
+<td class="py-3 px-4 font-mono text-mono text-on-surface-variant">SCR-091A</td>
+<td class="py-3 px-4 text-on-surface">Retail Corp EU</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="border-t border-outline-variant bg-surface px-4 py-3 flex items-center justify-between sm:px-6">
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                                    Mostrando <span class="font-medium text-on-surface">1</span> a <span class="font-medium text-on-surface">2</span> de <span class="font-medium text-on-surface">97</span> resultados
+                                </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-outline-variant bg-surface text-sm font-medium text-on-surface-variant hover:bg-surface-container-low" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</a>
+<a aria-current="page" class="z-10 bg-secondary-container border-outline-variant text-on-secondary-container relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">1</a>
+<a class="bg-surface border-outline-variant text-on-surface-variant hover:bg-surface-container-low relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">2</a>
+<a class="bg-surface border-outline-variant text-on-surface-variant hover:bg-surface-container-low relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">3</a>
+<span class="relative inline-flex items-center px-4 py-2 border border-outline-variant bg-surface text-sm font-medium text-on-surface-variant">...</span>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-outline-variant bg-surface text-sm font-medium text-on-surface-variant hover:bg-surface-container-low" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Side Panel Inspector (Drawer) -->
+<div class="fixed inset-y-0 right-0 w-full sm:w-drawer_width bg-surface border-l border-outline-variant shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col" id="inspector-drawer">
+<div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-surface-container-low/50">
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface">Detalle de Evento</h3>
+<button class="text-on-surface-variant hover:text-on-surface rounded-full p-1 hover:bg-surface-variant transition-colors" onclick="toggleInspector(false)">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">ID Registro</p>
+<p class="font-mono text-mono text-on-surface">EVT-998234-AX</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">Fecha / Hora</p>
+<p class="font-body-sm text-body-sm text-on-surface">2023-10-27 14:32:01 UTC</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">IP Origen</p>
+<p class="font-mono text-mono text-on-surface">192.168.1.45</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">Agente de Usuario</p>
+<p class="font-body-sm text-body-sm text-on-surface truncate" title="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36">Mozilla/5.0 (Windows NT...</p>
+</div>
+</div>
+<div class="border border-outline-variant rounded bg-surface-container-low p-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold">A</div>
+<div>
+<p class="font-body-sm text-body-sm font-semibold text-on-surface">admin@redglobal.com</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Administrador del Sistema</p>
+</div>
+</div>
+</div>
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Cambios de Configuración (Diff)</h4>
+<div class="bg-inverse-surface rounded-lg p-4 overflow-x-auto text-on-tertiary">
+<pre class="font-mono text-mono leading-relaxed">{
+  "playlist_id": "PL-8492-X",
+  "action": "UPDATE_SCHEDULE",
+  "changes": {
+    "start_time": {
+<span class="text-error-container line-through">      "old": "08:00:00",</span>
+<span class="text-[#a8c7fa]">      "new": "07:30:00"</span>
+    },
+    "duration_seconds": {
+<span class="text-error-container line-through">      "old": 3600,</span>
+<span class="text-[#a8c7fa]">      "new": 7200</span>
+    }
+  }
+}
+                        </pre>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+<button class="bg-surface border border-outline-variant text-on-surface font-label-caps text-label-caps rounded py-2 px-4 hover:bg-surface-container-low transition-colors">
+                    Copiar JSON
+                </button>
+</div>
+</div>
+</div>
+<!-- Backdrop for Drawer -->
+<div class="fixed inset-0 bg-primary/20 backdrop-blur-sm z-40 hidden transition-opacity opacity-0" id="drawer-backdrop" onclick="toggleInspector(false)"></div>
+<script>
+        function toggleInspector(show) {
+            const drawer = document.getElementById('inspector-drawer');
+            const backdrop = document.getElementById('drawer-backdrop');
+            
+            if (show) {
+                drawer.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            } else {
+                drawer.classList.add('translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            }
+        }
+    </script>
+
+
+</body></html>
