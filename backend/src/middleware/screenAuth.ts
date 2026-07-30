@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { RequestHandler } from "express";
-import { prisma } from "../config/prisma";
-import { verifyScreenToken } from "../utils/jwt";
+import { prisma } from "../config/prisma.js";
+import { verifyScreenToken } from "../utils/jwt.js";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

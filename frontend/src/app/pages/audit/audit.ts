@@ -4,17 +4,19 @@ import { firstValueFrom } from "rxjs";
 import { AuditLog } from "../../core/models/models";
 import { AuditService } from "../../core/services/audit.service";
 import { WorkspaceService } from "../../core/services/workspace.service";
+import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 
 @Component({
   selector: "app-audit",
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SpinnerComponent],
   templateUrl: "./audit.html",
 })
 export class Audit implements OnInit {
   readonly logs = signal<AuditLog[]>([]);
   readonly total = signal(0);
   readonly page = signal(1);
+  readonly loading = signal(false);
   readonly pageSize = 25;
 
   constructor(
@@ -33,9 +35,14 @@ export class Audit implements OnInit {
   private async load(): Promise<void> {
     const organizationId = this.workspace.selectedOrganizationId();
     if (!organizationId) return;
-    const result = await firstValueFrom(this.auditService.list({ organizationId, page: this.page() }));
-    this.logs.set(result.items);
-    this.total.set(result.total);
+    this.loading.set(true);
+    try {
+      const result = await firstValueFrom(this.auditService.list({ organizationId, page: this.page() }));
+      this.logs.set(result.items);
+      this.total.set(result.total);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   async goToPage(page: number): Promise<void> {

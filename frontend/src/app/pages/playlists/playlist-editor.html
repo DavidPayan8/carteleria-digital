@@ -34,7 +34,7 @@
           @if (item.media?.type === 0) {
             <img [src]="item.media?.url" class="h-full w-full object-cover" />
           } @else {
-            <video [src]="item.media?.url" class="h-full w-full object-cover"></video>
+            <video [src]="item.media?.url" [attr.poster]="item.media?.thumbnailUrl" class="h-full w-full object-cover"></video>
           }
         </div>
 
@@ -71,4 +71,6 @@
       <p class="py-10 text-sm text-on-surface-variant">Añade el primer archivo desde el selector de arriba.</p>
     }
   </div>
+} @else if (loading()) {
+  <app-spinner />
 }

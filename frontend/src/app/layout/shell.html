@@ -26,7 +26,10 @@
 
     <div class="border-t border-white/10 px-4 py-4">
       <div class="text-xs text-white/50">{{ auth.user()?.email }}</div>
-      <button (click)="logout()" class="mt-2 text-xs font-medium text-white/70 hover:text-white">
+      <a routerLink="/account" class="mt-2 block text-xs font-medium text-white/70 hover:text-white">
+        Mi cuenta
+      </a>
+      <button (click)="logout()" class="mt-1 text-xs font-medium text-white/70 hover:text-white">
         Cerrar sesión
       </button>
     </div>

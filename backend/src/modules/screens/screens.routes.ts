@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { requireAuth, requireRole } from "../../middleware/auth";
+import { ROLE } from "../../config/roles.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
 import {
   createScreen,
   deleteScreen,
@@ -7,18 +8,22 @@ import {
   listScreens,
   pairScreen,
   regeneratePairingCode,
+  unpairScreen,
   updateScreen,
-} from "./screens.controller";
+} from "./screens.controller.js";
 
 export const screensRouter = Router();
 
 // Sin auth: lo usa el dispositivo antes de tener token propio.
 screensRouter.post("/pair", pairScreen);
 
+const canManage = requireRole(ROLE.SuperAdmin, ROLE.OrgAdmin, ROLE.LocationAdmin);
+
 screensRouter.use(requireAuth);
 screensRouter.get("/", listScreens);
 screensRouter.get("/:id", getScreen);
-screensRouter.post("/", requireRole(1, 2, 3), createScreen);
-screensRouter.patch("/:id", requireRole(1, 2, 3), updateScreen);
-screensRouter.post("/:id/pairing-code", requireRole(1, 2, 3), regeneratePairingCode);
-screensRouter.delete("/:id", requireRole(1, 2, 3), deleteScreen);
+screensRouter.post("/", canManage, createScreen);
+screensRouter.patch("/:id", canManage, updateScreen);
+screensRouter.post("/:id/pairing-code", canManage, regeneratePairingCode);
+screensRouter.post("/:id/unpair", canManage, unpairScreen);
+screensRouter.delete("/:id", canManage, deleteScreen);

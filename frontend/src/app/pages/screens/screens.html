@@ -36,10 +36,78 @@
         <option [ngValue]="1">Vertical</option>
       </select>
     </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-on-surface-variant">Grupo (opcional)</label>
+      <select [(ngModel)]="screenGroupId" name="screenGroupId" class="rounded border border-border px-3 py-2 text-sm">
+        <option value="">Sin grupo</option>
+        @for (g of groups(); track g.id) {
+          <option [value]="g.id">{{ g.name }}</option>
+        }
+      </select>
+    </div>
     <button type="submit" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary">Crear</button>
   </form>
 }
 
+<div class="mb-6 rounded-lg border border-border bg-surface-container p-4">
+  <div class="mb-3 flex items-center justify-between">
+    <h2 class="text-sm font-semibold">Grupos de pantallas</h2>
+    <button
+      type="button"
+      (click)="showGroupForm.set(!showGroupForm())"
+      class="text-xs font-medium text-accent hover:underline"
+    >
+      + Nuevo grupo
+    </button>
+  </div>
+
+  @if (showGroupForm()) {
+    <form (ngSubmit)="createGroup()" class="mb-3 flex items-end gap-2">
+      <input
+        [(ngModel)]="newGroupName"
+        name="newGroupName"
+        required
+        placeholder="Ej. Pantallas de terraza"
+        class="rounded border border-border px-3 py-2 text-sm"
+      />
+      <button type="submit" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary">Crear grupo</button>
+    </form>
+  }
+
+  @if (groupError()) {
+    <p class="mb-2 text-xs text-danger">{{ groupError() }}</p>
+  }
+
+  @if (groups().length === 0) {
+    <p class="text-xs text-on-surface-variant">
+      Sin grupos todavía. Un grupo permite crear una única programación que aplique a varias pantallas a la vez.
+    </p>
+  } @else {
+    <ul class="space-y-1.5">
+      @for (g of groups(); track g.id) {
+        <li class="flex items-center justify-between gap-2 text-sm">
+          @if (editingGroupId === g.id) {
+            <form (ngSubmit)="saveGroup()" class="flex flex-1 items-center gap-2">
+              <input [(ngModel)]="editingGroupName" name="editingGroupName" required class="flex-1 rounded border border-border px-2 py-1 text-sm" />
+              <button type="submit" class="text-xs font-medium text-accent hover:underline">Guardar</button>
+              <button type="button" (click)="cancelEditGroup()" class="text-xs font-medium text-on-surface-variant hover:underline">Cancelar</button>
+            </form>
+          } @else {
+            <span>{{ g.name }}</span>
+            <div class="space-x-3">
+              <button type="button" (click)="startEditGroup(g)" class="text-xs font-medium text-accent hover:underline">Renombrar</button>
+              <button type="button" (click)="removeGroup(g)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+@if (loading()) {
+  <app-spinner />
+} @else {
 <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
   <table class="w-full text-left text-sm">
     <thead class="border-b border-border bg-surface-container-high text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -48,6 +116,7 @@
         <th class="px-4 py-2">Estado</th>
         <th class="px-4 py-2">Última conexión</th>
         <th class="px-4 py-2">Orientación</th>
+        <th class="px-4 py-2">Grupo</th>
         <th class="px-4 py-2"></th>
       </tr>
     </thead>
@@ -59,6 +128,10 @@
             @if (screen.pairingCode) {
               <span class="rounded-full bg-warning-container px-2 py-0.5 text-xs font-medium text-on-warning-container">
                 Sin emparejar
+              </span>
+            } @else if (!screen.pairedAt) {
+              <span class="rounded-full bg-warning-container px-2 py-0.5 text-xs font-medium text-on-warning-container">
+                Desemparejada
               </span>
             } @else if (isOnline(screen.lastSeenAt)) {
               <span class="rounded-full bg-success-container px-2 py-0.5 text-xs font-medium text-on-success-container">Online</span>
@@ -72,7 +145,27 @@
           <td class="px-4 py-2 text-on-surface-variant">
             {{ screen.orientation === 1 ? "Vertical" : "Horizontal" }}
           </td>
+          <td class="px-4 py-2">
+            <select
+              [ngModel]="screen.screenGroupId ?? ''"
+              (ngModelChange)="assignGroup(screen, $event)"
+              class="rounded border border-border px-2 py-1 text-xs"
+            >
+              <option value="">Sin grupo</option>
+              @for (g of groups(); track g.id) {
+                <option [value]="g.id">{{ g.name }}</option>
+              }
+            </select>
+          </td>
           <td class="px-4 py-2 text-right space-x-3">
+            @if (!screen.pairingCode && screen.pairedAt) {
+              <button (click)="unpair(screen)" class="text-xs font-medium text-warning hover:underline">
+                Desemparejar
+              </button>
+            }
+            <a [routerLink]="['/screens', screen.id, 'layout']" class="text-xs font-medium text-accent hover:underline">
+              Editar layout
+            </a>
             <button (click)="regenerateCode(screen)" class="text-xs font-medium text-accent hover:underline">
               Regenerar código
             </button>
@@ -80,8 +173,9 @@
           </td>
         </tr>
       } @empty {
-        <tr><td colspan="5" class="px-4 py-6 text-center text-on-surface-variant">Sin pantallas todavía.</td></tr>
+        <tr><td colspan="6" class="px-4 py-6 text-center text-on-surface-variant">Sin pantallas todavía.</td></tr>
       }
     </tbody>
   </table>
 </div>
+}

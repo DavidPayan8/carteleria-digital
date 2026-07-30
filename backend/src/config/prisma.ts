@@ -1,3 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaMssql } from "@prisma/adapter-mssql";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { env } from "./env.js";
 
-export const prisma = new PrismaClient();
+const adapter = new PrismaMssql(env.DATABASE_URL);
+
+export const prisma = new PrismaClient({ adapter });

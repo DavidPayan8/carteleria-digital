@@ -39,6 +39,10 @@ export class AuthService {
     return this.roleIds().some((r) => roleIds.includes(r));
   }
 
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.patch<void>(`${environment.apiUrl}/auth/password`, { currentPassword, newPassword });
+  }
+
   async login(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password }),

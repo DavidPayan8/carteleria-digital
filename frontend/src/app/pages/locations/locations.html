@@ -3,12 +3,14 @@
     <h1 class="text-2xl font-semibold tracking-tight">Restaurantes</h1>
     <p class="text-sm text-on-surface-variant">Locales de {{ workspace.selectedOrganization()?.name }}.</p>
   </div>
-  <button
-    (click)="showForm.set(!showForm())"
-    class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary hover:opacity-90"
-  >
-    + Nuevo restaurante
-  </button>
+  @if (canEdit) {
+    <button
+      (click)="showForm.set(!showForm())"
+      class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary hover:opacity-90"
+    >
+      + Nuevo restaurante
+    </button>
+  }
 </div>
 
 @if (showForm()) {
@@ -29,6 +31,9 @@
   </form>
 }
 
+@if (loading()) {
+  <app-spinner />
+} @else {
 <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
   <table class="w-full text-left text-sm">
     <thead class="border-b border-border bg-surface-container-high text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -41,17 +46,39 @@
     </thead>
     <tbody>
       @for (loc of locations(); track loc.id) {
-        <tr class="border-b border-border last:border-0 hover:bg-surface-container-high">
-          <td class="px-4 py-2 font-medium">{{ loc.name }}</td>
-          <td class="px-4 py-2 text-on-surface-variant">{{ loc.address || "—" }}</td>
-          <td class="px-4 py-2 font-mono text-xs text-on-surface-variant">{{ loc.timeZone }}</td>
-          <td class="px-4 py-2 text-right">
-            <button (click)="remove(loc.id)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
-          </td>
-        </tr>
+        @if (editingId() === loc.id) {
+          <tr class="border-b border-border last:border-0 bg-surface-container-high">
+            <td class="px-4 py-2">
+              <input [(ngModel)]="editName" class="w-full rounded border border-border px-2 py-1 text-sm" />
+            </td>
+            <td class="px-4 py-2">
+              <input [(ngModel)]="editAddress" class="w-full rounded border border-border px-2 py-1 text-sm" />
+            </td>
+            <td class="px-4 py-2">
+              <input [(ngModel)]="editTimeZone" class="w-full rounded border border-border px-2 py-1 font-mono text-xs" />
+            </td>
+            <td class="px-4 py-2 text-right space-x-3">
+              <button (click)="saveEdit(loc.id)" class="text-xs font-medium text-accent hover:underline">Guardar</button>
+              <button (click)="cancelEdit()" class="text-xs font-medium text-on-surface-variant hover:underline">Cancelar</button>
+            </td>
+          </tr>
+        } @else {
+          <tr class="border-b border-border last:border-0 hover:bg-surface-container-high">
+            <td class="px-4 py-2 font-medium">{{ loc.name }}</td>
+            <td class="px-4 py-2 text-on-surface-variant">{{ loc.address || "—" }}</td>
+            <td class="px-4 py-2 font-mono text-xs text-on-surface-variant">{{ loc.timeZone }}</td>
+            <td class="px-4 py-2 text-right space-x-3">
+              @if (canEdit) {
+                <button (click)="startEdit(loc)" class="text-xs font-medium text-accent hover:underline">Editar</button>
+                <button (click)="remove(loc.id)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
+              }
+            </td>
+          </tr>
+        }
       } @empty {
         <tr><td colspan="4" class="px-4 py-6 text-center text-on-surface-variant">Sin restaurantes todavía.</td></tr>
       }
     </tbody>
   </table>
 </div>
+}

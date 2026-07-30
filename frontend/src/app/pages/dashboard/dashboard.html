@@ -27,6 +27,8 @@
       <div class="mt-2 text-2xl font-semibold text-danger">{{ s.screensTotal - s.screensOnline }}</div>
     </div>
   </div>
+} @else if (loading()) {
+  <app-spinner />
 } @else {
   <p class="text-sm text-on-surface-variant">Selecciona una organización para ver sus métricas.</p>
 }

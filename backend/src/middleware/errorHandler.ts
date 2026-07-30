@@ -1,9 +1,10 @@
 import { ErrorRequestHandler } from "express";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
-    res.status(400).json({ error: "Validation error", details: err.flatten() });
+    // .flatten() está deprecado en Zod v4 en favor de z.treeifyError().
+    res.status(400).json({ error: "Validation error", details: z.treeifyError(err) });
     return;
   }
   console.error(err);

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { UserTokenPayload, verifyUserToken } from "../utils/jwt";
+import { UserTokenPayload, verifyUserToken } from "../utils/jwt.js";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -24,7 +24,7 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   }
 };
 
-// roleIds: ver Roles seed -> 1=SuperAdmin, 2=OrgAdmin, 3=LocationAdmin, 4=Viewer
+// roleIds: usar las constantes de ../config/roles (ROLE.SuperAdmin, etc.)
 export const requireRole =
   (...roleIds: number[]): RequestHandler =>
   (req, res, next) => {

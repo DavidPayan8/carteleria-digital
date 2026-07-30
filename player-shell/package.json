@@ -1,0 +1,14 @@
+{
+  "name": "carteleria-digital-player-shell",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "npm run build && electron ./dist/main.js"
+  },
+  "devDependencies": {
+    "electron": "^31.3.0",
+    "typescript": "^5.5.3"
+  }
+}

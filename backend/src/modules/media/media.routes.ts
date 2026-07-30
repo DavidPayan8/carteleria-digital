@@ -1,7 +1,8 @@
 import { Router } from "express";
 import multer from "multer";
-import { requireAuth, requireRole } from "../../middleware/auth";
-import { deleteMedia, listMedia, uploadMedia } from "./media.controller";
+import { ROLE } from "../../config/roles.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
+import { deleteMedia, listMedia, uploadMedia } from "./media.controller.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -12,5 +13,13 @@ export const mediaRouter = Router();
 
 mediaRouter.use(requireAuth);
 mediaRouter.get("/", listMedia);
-mediaRouter.post("/", requireRole(1, 2, 3), upload.single("file"), uploadMedia);
-mediaRouter.delete("/:id", requireRole(1, 2, 3), deleteMedia);
+mediaRouter.post(
+  "/",
+  requireRole(ROLE.SuperAdmin, ROLE.OrgAdmin, ROLE.LocationAdmin),
+  upload.fields([
+    { name: "file", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
+  uploadMedia,
+);
+mediaRouter.delete("/:id", requireRole(ROLE.SuperAdmin, ROLE.OrgAdmin, ROLE.LocationAdmin), deleteMedia);

@@ -19,6 +19,10 @@ export class LocationsService {
     return this.http.post<Location>(this.base, data);
   }
 
+  update(id: string, data: Partial<{ name: string; address: string; timeZone: string }>) {
+    return this.http.patch<Location>(`${this.base}/${id}`, data);
+  }
+
   delete(id: string) {
     return this.http.delete<void>(`${this.base}/${id}`);
   }

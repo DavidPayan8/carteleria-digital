@@ -17,6 +17,10 @@ export class OrganizationsService {
     return this.http.post<Organization>(this.base, data);
   }
 
+  update(id: string, data: Partial<{ name: string; slug: string }>) {
+    return this.http.patch<Organization>(`${this.base}/${id}`, data);
+  }
+
   delete(id: string) {
     return this.http.delete<void>(`${this.base}/${id}`);
   }

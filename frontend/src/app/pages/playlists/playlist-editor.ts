@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+
 import { Component, OnInit, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
@@ -7,18 +7,20 @@ import { Media, Playlist } from "../../core/models/models";
 import { MediaService } from "../../core/services/media.service";
 import { PlaylistsService } from "../../core/services/playlists.service";
 import { WorkspaceService } from "../../core/services/workspace.service";
+import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 
 const TRANSITIONS = ["fade", "slide-left", "slide-right", "cut"];
 
 @Component({
   selector: "app-playlist-editor",
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, SpinnerComponent],
   templateUrl: "./playlist-editor.html",
 })
 export class PlaylistEditor implements OnInit {
   readonly playlist = signal<Playlist | null>(null);
   readonly mediaLibrary = signal<Media[]>([]);
+  readonly loading = signal(false);
   readonly transitions = TRANSITIONS;
   selectedMediaId = "";
 
@@ -37,11 +39,16 @@ export class PlaylistEditor implements OnInit {
   }
 
   private async load(): Promise<void> {
-    const playlist = await firstValueFrom(this.playlistsService.get(this.playlistId));
-    this.playlist.set(playlist);
-    const orgId = playlist.organizationId ?? this.workspace.selectedOrganizationId();
-    if (orgId) {
-      this.mediaLibrary.set(await firstValueFrom(this.mediaService.list(orgId)));
+    this.loading.set(true);
+    try {
+      const playlist = await firstValueFrom(this.playlistsService.get(this.playlistId));
+      this.playlist.set(playlist);
+      const orgId = playlist.organizationId ?? this.workspace.selectedOrganizationId();
+      if (orgId) {
+        this.mediaLibrary.set(await firstValueFrom(this.mediaService.list(orgId)));
+      }
+    } finally {
+      this.loading.set(false);
     }
   }
 

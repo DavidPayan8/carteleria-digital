@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { prisma } from "../../config/prisma";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { recordAuditLog } from "../../utils/audit";
+import { prisma } from "../../config/prisma.js";
+import { assertOrganizationAccess, getScope, scopedOrganizationId } from "../../middleware/scope.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { recordAuditLog } from "../../utils/audit.js";
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -13,12 +14,19 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial();
 
-export const listOrganizations = asyncHandler(async (_req, res) => {
-  const organizations = await prisma.organization.findMany({ orderBy: { name: "asc" } });
+export const listOrganizations = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
+  const id = scopedOrganizationId(scope);
+  const organizations = await prisma.organization.findMany({
+    where: id ? { id } : undefined,
+    orderBy: { name: "asc" },
+  });
   res.json(organizations);
 });
 
 export const getOrganization = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
+  assertOrganizationAccess(scope, req.params.id);
   const organization = await prisma.organization.findUniqueOrThrow({ where: { id: req.params.id } });
   res.json(organization);
 });

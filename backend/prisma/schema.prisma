@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "sqlserver"
-  url      = env("DATABASE_URL")
 }
 
 model Organization {
@@ -129,9 +129,34 @@ model Screen {
   screenGroup ScreenGroup?      @relation(fields: [screenGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   schedules   Schedule[]
   heartbeats  ScreenHeartbeat[]
+  zones       ScreenZone[]
 
   @@index([locationId])
   @@map("Screens")
+}
+
+// Layout de una pantalla dividida en varias regiones (ej. vídeo grande +
+// columna de fotos). Coordenadas en porcentaje (0-100) relativas a la propia
+// pantalla, para que el player las traduzca a cualquier resolución real.
+// Una pantalla sin zonas se comporta como hoy: una única Schedule a pantalla
+// completa (ScreenId). Con zonas, cada zona lleva su propia Schedule.
+model ScreenZone {
+  id        String   @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
+  screenId  String   @db.UniqueIdentifier
+  name      String   @db.NVarChar(200)
+  x         Decimal  @db.Decimal(5, 2)
+  y         Decimal  @db.Decimal(5, 2)
+  width     Decimal  @db.Decimal(5, 2)
+  height    Decimal  @db.Decimal(5, 2)
+  zIndex    Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime2
+  updatedAt DateTime @updatedAt @db.DateTime2
+
+  screen    Screen     @relation(fields: [screenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  schedules Schedule[]
+
+  @@index([screenId])
+  @@map("ScreenZones")
 }
 
 model Media {
@@ -193,15 +218,17 @@ model PlaylistItem {
   @@map("PlaylistItems")
 }
 
-// Se aplica a UNA de: screenId, screenGroupId o locationId (validado en la app;
-// SQL Server no soporta CHECK constraints portables vía Prisma migrate, se añade
-// a mano en la migración generada — ver README de este backend).
+// Se aplica a UNA de: screenId, screenGroupId, locationId o screenZoneId
+// (validado en la app; SQL Server no soporta CHECK constraints portables vía
+// Prisma migrate, se añade a mano en la migración generada — ver README de
+// este backend).
 model Schedule {
   id            String    @id @default(dbgenerated("newid()")) @db.UniqueIdentifier
   playlistId    String    @db.UniqueIdentifier
   screenId      String?   @db.UniqueIdentifier
   screenGroupId String?   @db.UniqueIdentifier
   locationId    String?   @db.UniqueIdentifier
+  screenZoneId  String?   @db.UniqueIdentifier
   name          String    @db.NVarChar(200)
   priority      Int       @default(0)
   startDate     DateTime  @db.Date
@@ -216,10 +243,12 @@ model Schedule {
   screen      Screen?      @relation(fields: [screenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   screenGroup ScreenGroup? @relation(fields: [screenGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   location    Location?    @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screenZone  ScreenZone?  @relation(fields: [screenZoneId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([screenId])
   @@index([screenGroupId])
   @@index([locationId])
+  @@index([screenZoneId])
   @@map("Schedules")
 }
 

@@ -4,15 +4,34 @@
     <p class="text-sm text-on-surface-variant">Qué playlist se reproduce, dónde y cuándo.</p>
   </div>
   <button
-    (click)="showForm.set(!showForm())"
+    (click)="openCreateForm()"
     class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary hover:opacity-90"
   >
     + Nueva programación
   </button>
 </div>
 
+<div class="mb-6 flex gap-2">
+  <button
+    (click)="viewMode.set('list')"
+    [class.bg-primary]="viewMode() === 'list'"
+    [class.text-on-primary]="viewMode() === 'list'"
+    class="rounded border border-border px-3 py-1.5 text-xs font-semibold"
+  >
+    Lista
+  </button>
+  <button
+    (click)="viewMode.set('calendar')"
+    [class.bg-primary]="viewMode() === 'calendar'"
+    [class.text-on-primary]="viewMode() === 'calendar'"
+    class="rounded border border-border px-3 py-1.5 text-xs font-semibold"
+  >
+    Calendario
+  </button>
+</div>
+
 @if (showForm()) {
-  <form (ngSubmit)="create()" class="mb-6 space-y-4 rounded-lg border border-border bg-surface-container p-4">
+  <form (ngSubmit)="save()" class="mb-6 space-y-4 rounded-lg border border-border bg-surface-container p-4">
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <div>
         <label class="mb-1 block text-xs font-medium text-on-surface-variant">Nombre</label>
@@ -31,18 +50,54 @@
         <label class="mb-1 block text-xs font-medium text-on-surface-variant">Aplica a</label>
         <select [(ngModel)]="target" name="target" class="w-full rounded border border-border px-3 py-2 text-sm">
           <option value="location">Todo el restaurante</option>
+          <option value="group">Un grupo de pantallas</option>
           <option value="screen">Una pantalla</option>
+          <option value="zone">Una zona (layout dividido)</option>
         </select>
       </div>
-      @if (target === "screen") {
+      @if (target === "group") {
+        <div>
+          <label class="mb-1 block text-xs font-medium text-on-surface-variant">Grupo</label>
+          <select [(ngModel)]="screenGroupId" name="screenGroupId" required class="w-full rounded border border-border px-3 py-2 text-sm">
+            <option value="" disabled>Selecciona...</option>
+            @for (g of groups(); track g.id) {
+              <option [value]="g.id">{{ g.name }}</option>
+            }
+          </select>
+          @if (groups().length === 0) {
+            <p class="mt-1 text-xs text-warning">No hay grupos creados todavía. Créalos en Pantallas.</p>
+          }
+        </div>
+      }
+      @if (target === "screen" || target === "zone") {
         <div>
           <label class="mb-1 block text-xs font-medium text-on-surface-variant">Pantalla</label>
-          <select [(ngModel)]="screenId" name="screenId" required class="w-full rounded border border-border px-3 py-2 text-sm">
+          <select
+            [(ngModel)]="screenId"
+            (ngModelChange)="screenZoneId = ''"
+            name="screenId"
+            required
+            class="w-full rounded border border-border px-3 py-2 text-sm"
+          >
             <option value="" disabled>Selecciona...</option>
             @for (s of screens(); track s.id) {
               <option [value]="s.id">{{ s.name }}</option>
             }
           </select>
+        </div>
+      }
+      @if (target === "zone") {
+        <div>
+          <label class="mb-1 block text-xs font-medium text-on-surface-variant">Zona</label>
+          <select [(ngModel)]="screenZoneId" name="screenZoneId" required class="w-full rounded border border-border px-3 py-2 text-sm">
+            <option value="" disabled>Selecciona...</option>
+            @for (z of zonesForSelectedScreen(); track z.id) {
+              <option [value]="z.id">{{ z.name }}</option>
+            }
+          </select>
+          @if (screenId && zonesForSelectedScreen().length === 0) {
+            <p class="mt-1 text-xs text-warning">Esta pantalla no tiene zonas. Créalas en Pantallas → Editar layout.</p>
+          }
         </div>
       }
     </div>
@@ -87,10 +142,26 @@
       </div>
     </div>
 
-    <button type="submit" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary">Crear programación</button>
+    @if (error()) {
+      <p class="text-xs text-danger">{{ error() }}</p>
+    }
+
+    <div class="flex gap-2">
+      <button type="submit" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary">
+        {{ editingId() ? "Guardar cambios" : "Crear programación" }}
+      </button>
+      @if (editingId()) {
+        <button type="button" (click)="cancelEdit()" class="rounded border border-border px-3 py-2 text-xs font-semibold hover:bg-surface-container-high">
+          Cancelar
+        </button>
+      }
+    </div>
   </form>
 }
 
+@if (loading()) {
+  <app-spinner />
+} @else if (viewMode() === 'list') {
 <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
   <table class="w-full text-left text-sm">
     <thead class="border-b border-border bg-surface-container-high text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -109,11 +180,20 @@
           <td class="px-4 py-2 font-medium">{{ s.name }}</td>
           <td class="px-4 py-2">{{ playlistName(s.playlistId) }}</td>
           <td class="px-4 py-2 text-on-surface-variant">
-            {{ s.screenId ? screenName(s.screenId) : "Todo el restaurante" }}
+            {{
+              s.screenZoneId
+                ? zoneLabel(s.screenZoneId)
+                : s.screenId
+                  ? screenName(s.screenId)
+                  : s.screenGroupId
+                    ? "Grupo: " + groupLabel(s.screenGroupId)
+                    : "Todo el restaurante"
+            }}
           </td>
           <td class="px-4 py-2 font-mono text-xs text-on-surface-variant">{{ s.startTime | slice: 11:16 }} - {{ s.endTime | slice: 11:16 }}</td>
           <td class="px-4 py-2 text-on-surface-variant">{{ s.priority }}</td>
-          <td class="px-4 py-2 text-right">
+          <td class="px-4 py-2 text-right space-x-3">
+            <button (click)="startEdit(s)" class="text-xs font-medium text-accent hover:underline">Editar</button>
             <button (click)="remove(s.id)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
           </td>
         </tr>
@@ -123,3 +203,100 @@
     </tbody>
   </table>
 </div>
+} @else {
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <label class="text-xs font-medium text-on-surface-variant">Ver calendario de:</label>
+      <select [(ngModel)]="calendarTargetKey" name="calendarTarget" class="rounded border border-border px-3 py-2 text-sm">
+        @for (t of calendarTargets(); track t.key) {
+          <option [value]="t.key">{{ t.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="previousWeek()"
+        class="rounded border border-border px-2 py-1.5 text-xs hover:bg-surface-container-high"
+        title="Semana anterior"
+      >
+        ◀
+      </button>
+      <input
+        type="date"
+        [ngModel]="calendarWeekStartInput()"
+        (ngModelChange)="onWeekDateInput($event)"
+        class="rounded border border-border px-2 py-1.5 text-xs"
+      />
+      <button
+        type="button"
+        (click)="nextWeek()"
+        class="rounded border border-border px-2 py-1.5 text-xs hover:bg-surface-container-high"
+        title="Semana siguiente"
+      >
+        ▶
+      </button>
+      <button
+        type="button"
+        (click)="goToCurrentWeek()"
+        class="rounded border border-border px-2 py-1.5 text-xs font-medium text-accent hover:bg-surface-container-high"
+      >
+        Hoy
+      </button>
+      <span class="text-xs text-on-surface-variant">{{ weekRangeLabel() }}</span>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    @if (calendarConflictCount() > 0) {
+      <p class="text-xs font-medium text-danger">
+        ⚠ {{ calendarConflictCount() }} tramo(s) con conflicto de prioridad esta semana — la programación atenuada no se llegará a ver.
+      </p>
+    } @else {
+      <p class="text-xs text-on-surface-variant">Sin conflictos detectados en la semana del {{ weekRangeLabel() }}.</p>
+    }
+  </div>
+
+  <div class="overflow-x-auto rounded-lg border border-border bg-surface-container">
+    <div class="grid min-w-[820px]" style="grid-template-columns: 44px repeat(7, 1fr);">
+      <div class="border-b border-border"></div>
+      @for (label of dayLabels; track label; let i = $index) {
+        <div class="border-b border-l border-border bg-surface-container-high p-2 text-center text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+          {{ label }} {{ calendarWeekDates()[i].getDate() }}
+        </div>
+      }
+
+      <div class="relative" [style.height.px]="24 * hourHeight">
+        @for (hour of hours; track hour) {
+          <div class="absolute right-1 -translate-y-1/2 text-[10px] text-on-surface-variant" [style.top.px]="hour * hourHeight">
+            {{ hour }}:00
+          </div>
+        }
+      </div>
+
+      @for (dayIndex of dayIndexes; track dayIndex) {
+        <div class="relative border-l border-border" [style.height.px]="24 * hourHeight">
+          @for (hour of hours; track hour) {
+            <div class="absolute w-full border-t border-border/60" [style.top.px]="hour * hourHeight"></div>
+          }
+          @for (block of calendarBlocksByDay()[dayIndex]; track block.key) {
+            <div
+              class="absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-[10px] leading-tight text-white shadow-sm"
+              [class.opacity-45]="!block.isWinner"
+              [style.top.px]="(block.startMinutes / 60) * hourHeight"
+              [style.height.px]="((block.endMinutes - block.startMinutes) / 60) * hourHeight"
+              [style.backgroundColor]="block.color"
+              [title]="blockTooltip(block)"
+            >
+              <div class="truncate font-semibold">{{ block.schedule.name }}</div>
+              <div class="truncate opacity-90">P{{ block.schedule.priority }}</div>
+              @if (!block.isWinner) {
+                <div class="truncate">⚠ sustituida</div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

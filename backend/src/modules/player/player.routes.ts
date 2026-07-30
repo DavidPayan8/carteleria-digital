@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireScreenAuth } from "../../middleware/screenAuth";
-import { getCurrentPlaylist } from "./player.controller";
+import { requireScreenAuth } from "../../middleware/screenAuth.js";
+import { getCurrentPlaylist } from "./player.controller.js";
 
 export const playerRouter = Router();
 

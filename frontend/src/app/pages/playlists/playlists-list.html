@@ -11,6 +11,10 @@
   </button>
 </div>
 
+@if (error(); as e) {
+  <p class="mb-4 text-xs text-danger">{{ e }}</p>
+}
+
 @if (showForm()) {
   <form (ngSubmit)="create()" class="mb-6 flex items-end gap-3 rounded-lg border border-border bg-surface-container p-4">
     <div>
@@ -25,12 +29,18 @@
   </form>
 }
 
+@if (loading()) {
+  <app-spinner />
+} @else {
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
   @for (playlist of playlists(); track playlist.id) {
     <div class="rounded-lg border border-border bg-surface-container p-4">
-      <div class="flex items-start justify-between">
+      <div class="flex items-start justify-between gap-2">
         <a [routerLink]="['/playlists', playlist.id]" class="font-medium hover:underline">{{ playlist.name }}</a>
-        <button (click)="remove(playlist.id)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
+        <div class="flex shrink-0 gap-2">
+          <button (click)="duplicate(playlist.id)" class="text-xs font-medium text-accent hover:underline">Duplicar</button>
+          <button (click)="remove(playlist.id)" class="text-xs font-medium text-danger hover:underline">Borrar</button>
+        </div>
       </div>
       <p class="mt-1 text-xs text-on-surface-variant">
         {{ playlist.locationId ? "Restaurante específico" : "Plantilla de organización" }}
@@ -43,3 +53,4 @@
     <p class="col-span-full py-10 text-center text-sm text-on-surface-variant">Sin playlists todavía.</p>
   }
 </div>
+}

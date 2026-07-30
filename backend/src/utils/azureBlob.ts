@@ -1,5 +1,5 @@
 import { BlobSASPermissions, BlobServiceClient } from "@azure/storage-blob";
-import { env } from "../config/env";
+import { env } from "../config/env.js";
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(env.AZURE_STORAGE_CONNECTION_STRING);
 

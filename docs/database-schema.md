@@ -25,8 +25,10 @@ erDiagram
     Screens ||--o{ Schedules : "target (opcional)"
     ScreenGroups ||--o{ Schedules : "target (opcional)"
     Locations ||--o{ Schedules : "target (opcional)"
+    ScreenZones ||--o{ Schedules : "target (opcional)"
     Playlists ||--o{ Schedules : asignada
 
+    Screens ||--o{ ScreenZones : "layout dividido (opcional)"
     Screens ||--o{ ScreenHeartbeats : reporta
 ```
 
@@ -50,6 +52,9 @@ Un restaurante puede agrupar pantallas (`ScreenGroups`, ej. "Sala", "Barra", "Te
 
 `PollingIntervalSeconds` es configurable por pantalla (por si alguna necesita refrescar más o menos frecuentemente).
 
+### ScreenZones (layout multi-zona)
+Una pantalla puede dividirse en varias regiones independientes (`ScreenZones`): cada zona tiene su posición y tamaño en **porcentaje** (`X`, `Y`, `Width`, `Height`, 0-100) relativo a la propia pantalla, y un `ZIndex` para el orden de apilado si dos zonas se superponen. Una pantalla **sin** zonas se comporta exactamente igual que antes de que existiera esta tabla (una única `Schedule` a pantalla completa vía `ScreenId`).
+
 ### Media
 Cada foto/video sube a **Azure Blob Storage**; la tabla solo guarda referencia (`BlobContainer` + `BlobPath`) y metadata (tamaño, duración de video, dimensiones). Las URLs reales se firman con **SAS tokens** al momento de servir al player, nunca se guardan URLs permanentes.
 
@@ -61,7 +66,7 @@ Una `Playlist` puede ser:
 `PlaylistItems` define el orden (`SortOrder`) y duración de cada pieza; para video se usa la duración real del archivo, para imagen se usa `DurationSecondsOverride` o el default de la playlist.
 
 ### Schedules (programación)
-Un `Schedule` asigna una `Playlist` a **exactamente uno** de: una pantalla concreta, un grupo de pantallas, o todas las pantallas de un restaurante (constraint `CK_Schedules_OneTarget`). Define:
+Un `Schedule` asigna una `Playlist` a **exactamente uno** de: una pantalla concreta, un grupo de pantallas, todas las pantallas de un restaurante, o una zona concreta de una pantalla (`CK_Schedules_OneTarget` exige exactamente uno de `ScreenId`/`ScreenGroupId`/`LocationId`/`ScreenZoneId`). Define:
 - Rango de fechas (`StartDate`/`EndDate`, este último `NULL` = indefinido).
 - Días de la semana como bitmask (`DaysOfWeek`).
 - Franja horaria (`StartTime`/`EndTime`).

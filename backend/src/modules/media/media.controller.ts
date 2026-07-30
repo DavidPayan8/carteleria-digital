@@ -1,11 +1,12 @@
 import crypto from "node:crypto";
 import path from "node:path";
 import { z } from "zod";
-import { env } from "../../config/env";
-import { prisma } from "../../config/prisma";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { recordAuditLog } from "../../utils/audit";
-import { deleteBlob, getReadSasUrl, uploadBuffer } from "../../utils/azureBlob";
+import { env } from "../../config/env.js";
+import { prisma } from "../../config/prisma.js";
+import { assertOrganizationAccess, getScope, scopedOrganizationId } from "../../middleware/scope.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { recordAuditLog } from "../../utils/audit.js";
+import { deleteBlob, getReadSasUrl, uploadBuffer } from "../../utils/azureBlob.js";
 
 const IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const VIDEO_MIME = new Set(["video/mp4", "video/webm", "video/quicktime"]);
@@ -17,18 +18,18 @@ const uploadMetaSchema = z.object({
   height: z.coerce.number().int().positive().optional(),
 });
 
-function withSasUrl<T extends { blobContainer: string; blobPath: string; thumbnailBlobPath: string | null }>(
+export async function withSasUrl<T extends { blobContainer: string; blobPath: string; thumbnailBlobPath: string | null }>(
   media: T,
 ) {
   return {
     ...media,
-    url: getReadSasUrl({
+    url: await getReadSasUrl({
       containerName: media.blobContainer,
       blobPath: media.blobPath,
       expiryMinutes: env.SAS_URL_EXPIRY_MINUTES,
     }),
     thumbnailUrl: media.thumbnailBlobPath
-      ? getReadSasUrl({
+      ? await getReadSasUrl({
           containerName: media.blobContainer,
           blobPath: media.thumbnailBlobPath,
           expiryMinutes: env.SAS_URL_EXPIRY_MINUTES,
@@ -38,22 +39,27 @@ function withSasUrl<T extends { blobContainer: string; blobPath: string; thumbna
 }
 
 export const listMedia = asyncHandler(async (req, res) => {
-  const organizationId = req.query.organizationId as string | undefined;
+  const scope = getScope(req);
+  const organizationId = scopedOrganizationId(scope, req.query.organizationId as string | undefined);
   const media = await prisma.media.findMany({
     where: organizationId ? { organizationId } : undefined,
     orderBy: { createdAt: "desc" },
   });
-  res.json(media.map(withSasUrl));
+  res.json(await Promise.all(media.map(withSasUrl)));
 });
 
 export const uploadMedia = asyncHandler(async (req, res) => {
-  const file = req.file;
+  const scope = getScope(req);
+  const files = req.files as Record<string, Express.Multer.File[]> | undefined;
+  const file = files?.file?.[0];
+  const thumbnailFile = files?.thumbnail?.[0];
   if (!file) {
     res.status(400).json({ error: "Falta el archivo (campo 'file')" });
     return;
   }
 
   const meta = uploadMetaSchema.parse(req.body);
+  assertOrganizationAccess(scope, meta.organizationId);
 
   const isImage = IMAGE_MIME.has(file.mimetype);
   const isVideo = VIDEO_MIME.has(file.mimetype);
@@ -75,6 +81,17 @@ export const uploadMedia = asyncHandler(async (req, res) => {
     contentType: file.mimetype,
   });
 
+  let thumbnailBlobPath: string | undefined;
+  if (thumbnailFile) {
+    thumbnailBlobPath = `${meta.organizationId}/${crypto.randomUUID()}-thumb.jpg`;
+    await uploadBuffer({
+      containerName: env.AZURE_STORAGE_CONTAINER,
+      blobPath: thumbnailBlobPath,
+      buffer: thumbnailFile.buffer,
+      contentType: thumbnailFile.mimetype,
+    });
+  }
+
   const media = await prisma.media.create({
     data: {
       organizationId: meta.organizationId,
@@ -84,6 +101,7 @@ export const uploadMedia = asyncHandler(async (req, res) => {
       sizeBytes: BigInt(file.size),
       blobContainer: env.AZURE_STORAGE_CONTAINER,
       blobPath,
+      thumbnailBlobPath,
       durationSeconds: meta.durationSeconds,
       width: meta.width,
       height: meta.height,
@@ -91,14 +109,16 @@ export const uploadMedia = asyncHandler(async (req, res) => {
     },
   });
 
-  res.status(201).json(withSasUrl(media));
+  res.status(201).json(await withSasUrl(media));
 });
 
 export const deleteMedia = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
   const { id } = req.params;
 
   const media = await prisma.$transaction(async (tx) => {
     const existing = await tx.media.findUniqueOrThrow({ where: { id } });
+    assertOrganizationAccess(scope, existing.organizationId);
     await recordAuditLog(tx, {
       entityName: "Media",
       entityId: id,

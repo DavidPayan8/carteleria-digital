@@ -8,6 +8,7 @@ export interface CreateScheduleInput {
   screenId?: string;
   screenGroupId?: string;
   locationId?: string;
+  screenZoneId?: string;
   name: string;
   priority?: number;
   startDate: string;
@@ -23,12 +24,16 @@ export class SchedulesService {
 
   constructor(private readonly http: HttpClient) {}
 
-  list(params?: { screenId?: string; screenGroupId?: string; locationId?: string }) {
+  list(params?: { screenId?: string; screenGroupId?: string; locationId?: string; screenZoneId?: string }) {
     return this.http.get<Schedule[]>(this.base, { params: { ...params } as Record<string, string> });
   }
 
   create(data: CreateScheduleInput) {
     return this.http.post<Schedule>(this.base, data);
+  }
+
+  update(id: string, data: Partial<CreateScheduleInput>) {
+    return this.http.patch<Schedule>(`${this.base}/${id}`, data);
   }
 
   delete(id: string) {

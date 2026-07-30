@@ -11,6 +11,9 @@
   </label>
 </div>
 
+@if (loading()) {
+  <app-spinner />
+} @else {
 <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
   @for (item of media(); track item.id) {
     <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
@@ -18,7 +21,7 @@
         @if (item.type === 0) {
           <img [src]="item.url" [alt]="item.fileName" class="h-full w-full object-cover" />
         } @else {
-          <video [src]="item.url" class="h-full w-full object-cover"></video>
+          <video [src]="item.url" [attr.poster]="item.thumbnailUrl" class="h-full w-full object-cover"></video>
           <div class="absolute inset-0 flex items-center justify-center">
             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/90">▶</div>
           </div>
@@ -44,3 +47,4 @@
     </p>
   }
 </div>
+}

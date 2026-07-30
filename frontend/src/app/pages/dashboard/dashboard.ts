@@ -1,10 +1,11 @@
-import { CommonModule } from "@angular/common";
+
 import { Component, OnInit, effect, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { MediaService } from "../../core/services/media.service";
 import { PlaylistsService } from "../../core/services/playlists.service";
 import { ScreensService } from "../../core/services/screens.service";
 import { WorkspaceService } from "../../core/services/workspace.service";
+import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 
 interface Stats {
   screensTotal: number;
@@ -21,11 +22,12 @@ function isOnline(lastSeenAt: string | null): boolean {
 @Component({
   selector: "app-dashboard",
   standalone: true,
-  imports: [CommonModule],
+  imports: [SpinnerComponent],
   templateUrl: "./dashboard.html",
 })
 export class Dashboard implements OnInit {
   readonly stats = signal<Stats | null>(null);
+  readonly loading = signal(false);
 
   constructor(
     readonly workspace: WorkspaceService,
@@ -47,22 +49,27 @@ export class Dashboard implements OnInit {
     const organizationId = this.workspace.selectedOrganizationId();
     if (!organizationId) return;
 
-    // No hay endpoint "screens por organización" todavía (los Screens cuelgan de
-    // Location, no directamente de Organization), así que se agregan por cada
-    // restaurante de la organización seleccionada.
-    const locationIds = this.workspace.locations().map((l) => l.id);
-    const [screensByLocation, media, playlists] = await Promise.all([
-      Promise.all(locationIds.map((id) => firstValueFrom(this.screensService.list(id)))),
-      firstValueFrom(this.mediaService.list(organizationId)),
-      firstValueFrom(this.playlistsService.list({ organizationId })),
-    ]);
-    const screens = screensByLocation.flat();
+    this.loading.set(true);
+    try {
+      // No hay endpoint "screens por organización" todavía (los Screens cuelgan de
+      // Location, no directamente de Organization), así que se agregan por cada
+      // restaurante de la organización seleccionada.
+      const locationIds = this.workspace.locations().map((l) => l.id);
+      const [screensByLocation, media, playlists] = await Promise.all([
+        Promise.all(locationIds.map((id) => firstValueFrom(this.screensService.list(id)))),
+        firstValueFrom(this.mediaService.list(organizationId)),
+        firstValueFrom(this.playlistsService.list({ organizationId })),
+      ]);
+      const screens = screensByLocation.flat();
 
-    this.stats.set({
-      screensTotal: screens.length,
-      screensOnline: screens.filter((s) => isOnline(s.lastSeenAt)).length,
-      mediaTotal: media.length,
-      playlistsTotal: playlists.length,
-    });
+      this.stats.set({
+        screensTotal: screens.length,
+        screensOnline: screens.filter((s) => isOnline(s.lastSeenAt)).length,
+        mediaTotal: media.length,
+        playlistsTotal: playlists.length,
+      });
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

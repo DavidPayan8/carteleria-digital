@@ -1,11 +1,14 @@
 import { Router } from "express";
-import { requireAuth, requireRole } from "../../middleware/auth";
-import { createSchedule, deleteSchedule, listSchedules, updateSchedule } from "./schedules.controller";
+import { ROLE } from "../../config/roles.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
+import { createSchedule, deleteSchedule, listSchedules, updateSchedule } from "./schedules.controller.js";
 
 export const schedulesRouter = Router();
 
+const canManage = requireRole(ROLE.SuperAdmin, ROLE.OrgAdmin, ROLE.LocationAdmin);
+
 schedulesRouter.use(requireAuth);
 schedulesRouter.get("/", listSchedules);
-schedulesRouter.post("/", requireRole(1, 2, 3), createSchedule);
-schedulesRouter.patch("/:id", requireRole(1, 2, 3), updateSchedule);
-schedulesRouter.delete("/:id", requireRole(1, 2, 3), deleteSchedule);
+schedulesRouter.post("/", canManage, createSchedule);
+schedulesRouter.patch("/:id", canManage, updateSchedule);
+schedulesRouter.delete("/:id", canManage, deleteSchedule);

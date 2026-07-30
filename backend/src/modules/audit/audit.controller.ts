@@ -1,8 +1,11 @@
-import { prisma } from "../../config/prisma";
-import { asyncHandler } from "../../utils/asyncHandler";
+import { prisma } from "../../config/prisma.js";
+import { getScope, scopedOrganizationId } from "../../middleware/scope.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export const listAuditLogs = asyncHandler(async (req, res) => {
-  const { organizationId, entityName } = req.query as Record<string, string | undefined>;
+  const scope = getScope(req);
+  const { entityName } = req.query as Record<string, string | undefined>;
+  const organizationId = scopedOrganizationId(scope, req.query.organizationId as string | undefined);
   const page = Math.max(1, Number(req.query.page) || 1);
   const pageSize = Math.min(100, Number(req.query.pageSize) || 25);
 

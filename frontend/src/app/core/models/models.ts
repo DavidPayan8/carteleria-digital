@@ -75,12 +75,33 @@ export interface Playlist {
   items?: PlaylistItem[];
 }
 
+export interface ScreenGroup {
+  id: string;
+  locationId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface ScreenZone {
+  id: string;
+  screenId: string;
+  name: string;
+  x: string; // Decimal serializado como string (igual que Media.durationSeconds)
+  y: string;
+  width: string;
+  height: string;
+  zIndex: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Schedule {
   id: string;
   playlistId: string;
   screenId: string | null;
   screenGroupId: string | null;
   locationId: string | null;
+  screenZoneId: string | null;
   name: string;
   priority: number;
   startDate: string;
@@ -110,6 +131,15 @@ export interface AuthUser {
   organizationId: string | null;
 }
 
+export interface ManagedUser {
+  id: string;
+  email: string;
+  fullName: string;
+  organizationId: string | null;
+  roles: { roleId: number; locationId: string | null }[];
+  createdAt: string;
+}
+
 // Roles seed: 1=SuperAdmin, 2=OrgAdmin, 3=LocationAdmin, 4=Viewer
 export const ROLE = {
   SuperAdmin: 1,
@@ -117,6 +147,13 @@ export const ROLE = {
   LocationAdmin: 3,
   Viewer: 4,
 } as const;
+
+export const ROLE_LABELS: Record<number, string> = {
+  [ROLE.SuperAdmin]: "SuperAdmin",
+  [ROLE.OrgAdmin]: "OrgAdmin",
+  [ROLE.LocationAdmin]: "LocationAdmin",
+  [ROLE.Viewer]: "Viewer",
+};
 
 export const DAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 export const DAY_BITS = [1, 2, 4, 8, 16, 32, 64];

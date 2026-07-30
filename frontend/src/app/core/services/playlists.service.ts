@@ -25,6 +25,10 @@ export class PlaylistsService {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 
+  duplicate(id: string) {
+    return this.http.post<Playlist>(`${this.base}/${id}/duplicate`, {});
+  }
+
   addItem(
     playlistId: string,
     data: { mediaId: string; sortOrder: number; durationSecondsOverride?: number; transitionType?: string },

@@ -1,9 +1,10 @@
 import crypto from "node:crypto";
 import { z } from "zod";
-import { prisma } from "../../config/prisma";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { recordAuditLog } from "../../utils/audit";
-import { signScreenToken } from "../../utils/jwt";
+import { prisma } from "../../config/prisma.js";
+import { assertLocationAccess, getScope, locationScopeWhere } from "../../middleware/scope.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { recordAuditLog } from "../../utils/audit.js";
+import { signScreenToken } from "../../utils/jwt.js";
 
 const createSchema = z.object({
   locationId: z.string().uuid(),
@@ -15,7 +16,20 @@ const createSchema = z.object({
   pollingIntervalSeconds: z.number().int().min(5).max(300).optional(),
 });
 
-const updateSchema = createSchema.partial().omit({ locationId: true });
+const updateSchema = createSchema.partial().omit({ locationId: true }).extend({
+  // A diferencia de create, update debe poder desasignar el grupo explícitamente.
+  screenGroupId: z.string().uuid().nullable().optional(),
+});
+
+async function assertGroupBelongsToLocation(screenGroupId: string | undefined, locationId: string): Promise<void> {
+  if (!screenGroupId) return;
+  const group = await prisma.screenGroup.findUniqueOrThrow({ where: { id: screenGroupId } });
+  if (group.locationId !== locationId) {
+    const err = new Error("El grupo de pantallas no pertenece a este restaurante");
+    (err as { status?: number }).status = 400;
+    throw err;
+  }
+}
 
 const PAIRING_CODE_TTL_MINUTES = 10;
 
@@ -24,23 +38,33 @@ function generatePairingCode(): string {
 }
 
 export const listScreens = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
   const locationId = req.query.locationId as string | undefined;
-  const screens = await prisma.screen.findMany({
-    where: locationId ? { locationId } : undefined,
-    orderBy: { name: "asc" },
-  });
+  const where = scope.isSuperAdmin
+    ? locationId
+      ? { locationId }
+      : undefined
+    : { ...(locationId ? { locationId } : {}), location: locationScopeWhere(scope) };
+  const screens = await prisma.screen.findMany({ where, orderBy: { name: "asc" } });
   res.json(screens.map(({ authTokenHash: _authTokenHash, ...s }) => s));
 });
 
 export const getScreen = asyncHandler(async (req, res) => {
-  const { authTokenHash: _authTokenHash, ...screen } = await prisma.screen.findUniqueOrThrow({
+  const scope = getScope(req);
+  const { authTokenHash: _authTokenHash, location, ...screen } = await prisma.screen.findUniqueOrThrow({
     where: { id: req.params.id },
+    include: { location: true },
   });
+  assertLocationAccess(scope, location);
   res.json(screen);
 });
 
 export const createScreen = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
   const data = createSchema.parse(req.body);
+  const location = await prisma.location.findUniqueOrThrow({ where: { id: data.locationId } });
+  assertLocationAccess(scope, location);
+  await assertGroupBelongsToLocation(data.screenGroupId, data.locationId);
   const screen = await prisma.screen.create({
     data: {
       ...data,
@@ -52,7 +76,14 @@ export const createScreen = asyncHandler(async (req, res) => {
 });
 
 export const updateScreen = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
+  const existing = await prisma.screen.findUniqueOrThrow({
+    where: { id: req.params.id },
+    include: { location: true },
+  });
+  assertLocationAccess(scope, existing.location);
   const data = updateSchema.parse(req.body);
+  if (data.screenGroupId) await assertGroupBelongsToLocation(data.screenGroupId, existing.locationId);
   const { authTokenHash: _authTokenHash, ...screen } = await prisma.screen.update({
     where: { id: req.params.id },
     data,
@@ -62,6 +93,12 @@ export const updateScreen = asyncHandler(async (req, res) => {
 
 // Regenera un código de emparejamiento (ej. la pantalla se desvinculó o perdió el token).
 export const regeneratePairingCode = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
+  const existing = await prisma.screen.findUniqueOrThrow({
+    where: { id: req.params.id },
+    include: { location: true },
+  });
+  assertLocationAccess(scope, existing.location);
   const screen = await prisma.screen.update({
     where: { id: req.params.id },
     data: {
@@ -74,11 +111,33 @@ export const regeneratePairingCode = asyncHandler(async (req, res) => {
   res.json({ pairingCode: screen.pairingCode, expiresAt: screen.pairingCodeExpiresAt });
 });
 
+// Desempareja la pantalla (revoca el token) sin generar un código nuevo todavía.
+export const unpairScreen = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
+  const existing = await prisma.screen.findUniqueOrThrow({
+    where: { id: req.params.id },
+    include: { location: true },
+  });
+  assertLocationAccess(scope, existing.location);
+  const screen = await prisma.screen.update({
+    where: { id: req.params.id },
+    data: {
+      authTokenHash: null,
+      pairedAt: null,
+      pairingCode: null,
+      pairingCodeExpiresAt: null,
+    },
+  });
+  res.json({ id: screen.id });
+});
+
 export const deleteScreen = asyncHandler(async (req, res) => {
+  const scope = getScope(req);
   const { id } = req.params;
   await prisma.$transaction(async (tx) => {
     const screen = await tx.screen.findUniqueOrThrow({ where: { id } });
     const location = await tx.location.findUniqueOrThrow({ where: { id: screen.locationId } });
+    assertLocationAccess(scope, location);
     await recordAuditLog(tx, {
       entityName: "Screen",
       entityId: id,

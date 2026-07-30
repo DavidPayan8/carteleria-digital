@@ -1,6 +1,9 @@
 import { Router } from "express";
-import { login } from "./auth.controller";
+import { requireAuth } from "../../middleware/auth.js";
+import { loginRateLimiter } from "../../middleware/rateLimit.js";
+import { changePassword, login } from "./auth.controller.js";
 
 export const authRouter = Router();
 
-authRouter.post("/login", login);
+authRouter.post("/login", loginRateLimiter, login);
+authRouter.patch("/password", requireAuth, changePassword);

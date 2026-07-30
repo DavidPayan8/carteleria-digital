@@ -13,13 +13,18 @@ export class MediaService {
     return this.http.get<Media[]>(this.base, { params: organizationId ? { organizationId } : {} });
   }
 
-  upload(file: File, organizationId: string, extra?: { durationSeconds?: number; width?: number; height?: number }) {
+  upload(
+    file: File,
+    organizationId: string,
+    extra?: { durationSeconds?: number; width?: number; height?: number; thumbnail?: Blob },
+  ) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("organizationId", organizationId);
     if (extra?.durationSeconds !== undefined) formData.append("durationSeconds", String(extra.durationSeconds));
     if (extra?.width !== undefined) formData.append("width", String(extra.width));
     if (extra?.height !== undefined) formData.append("height", String(extra.height));
+    if (extra?.thumbnail) formData.append("thumbnail", extra.thumbnail, "thumbnail.jpg");
     return this.http.post<Media>(this.base, formData);
   }
 

@@ -1,0 +1,171 @@
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <a routerLink="/screens" class="text-xs font-medium text-accent hover:underline">&larr; Volver a Pantallas</a>
+    <h1 class="mt-1 text-2xl font-semibold tracking-tight">Layout — {{ screen()?.name }}</h1>
+    <p class="text-sm text-on-surface-variant">
+      Arrastra para mover/redimensionar, o usa los números de al lado para precisión. Sin zonas, la pantalla se comporta como una única playlist a pantalla completa.
+    </p>
+  </div>
+  <button (click)="addZone()" class="rounded bg-primary px-3 py-2 text-xs font-semibold text-on-primary hover:opacity-90">
+    + Añadir zona
+  </button>
+</div>
+
+@if (loading()) {
+  <app-spinner />
+} @else {
+<div class="flex gap-6">
+  <div class="w-40 shrink-0">
+    <p class="mb-2 text-xs font-medium uppercase tracking-wide text-on-surface-variant">Zonas</p>
+    <ul class="space-y-1">
+      @for (zone of zones(); track zone.id) {
+        <li>
+          <button
+            (click)="select(zone.id)"
+            class="w-full rounded border px-2 py-1.5 text-left text-xs"
+            [class.border-accent]="selectedId() === zone.id"
+            [class.bg-accent/10]="selectedId() === zone.id"
+            [class.border-border]="selectedId() !== zone.id"
+          >
+            {{ zone.name }}
+          </button>
+        </li>
+      } @empty {
+        <li class="text-xs text-on-surface-variant">Sin zonas todavía.</li>
+      }
+    </ul>
+  </div>
+
+  <div
+    #canvas
+    class="relative shrink-0 select-none overflow-hidden rounded-lg border border-border bg-surface-container-high"
+    [style.width.px]="480"
+    [style.height.px]="screen()?.orientation === 1 ? 854 : 270"
+  >
+    @if (zones().length === 0) {
+      <div class="absolute inset-0 flex items-center justify-center text-center text-xs text-on-surface-variant">
+        Pantalla completa (sin zonas)
+      </div>
+    }
+    @for (zone of zones(); track zone.id) {
+      <div
+        class="absolute cursor-move rounded border-2 bg-accent/10"
+        [class.border-accent]="selectedId() === zone.id"
+        [class.border-border]="selectedId() !== zone.id"
+        [style.left.%]="zone.x"
+        [style.top.%]="zone.y"
+        [style.width.%]="zone.width"
+        [style.height.%]="zone.height"
+        [style.zIndex]="zone.zIndex"
+        (mousedown)="startDrag($event, zone)"
+      >
+        <span class="pointer-events-none absolute left-1 top-1 rounded bg-surface px-1.5 py-0.5 text-[10px] font-medium">
+          {{ zone.name }}
+        </span>
+        <div
+          class="absolute bottom-0 right-0 h-3 w-3 cursor-nwse-resize rounded-tl bg-accent"
+          (mousedown)="startResize($event, zone)"
+        ></div>
+      </div>
+    }
+  </div>
+
+  <div class="w-72 shrink-0">
+    @if (selectedZone; as zone) {
+      <div class="space-y-3 rounded-lg border border-border bg-surface-container p-4">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-on-surface-variant">Nombre</label>
+          <input
+            [ngModel]="zone.name"
+            (ngModelChange)="renameSelected($event)"
+            class="w-full rounded border border-border px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="mb-1 block text-xs font-medium text-on-surface-variant">X %</label>
+            <input
+              type="number" min="0" max="100"
+              [ngModel]="zone.x"
+              (ngModelChange)="setField('x', $event)"
+              class="w-full rounded border border-border px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-on-surface-variant">Y %</label>
+            <input
+              type="number" min="0" max="100"
+              [ngModel]="zone.y"
+              (ngModelChange)="setField('y', $event)"
+              class="w-full rounded border border-border px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-on-surface-variant">Ancho %</label>
+            <input
+              type="number" min="1" max="100"
+              [ngModel]="zone.width"
+              (ngModelChange)="setField('width', $event)"
+              class="w-full rounded border border-border px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-on-surface-variant">Alto %</label>
+            <input
+              type="number" min="1" max="100"
+              [ngModel]="zone.height"
+              (ngModelChange)="setField('height', $event)"
+              class="w-full rounded border border-border px-2 py-1.5 text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-xs font-medium text-on-surface-variant">Orden de apilado (zIndex: {{ zone.zIndex }})</label>
+          <div class="flex gap-2">
+            <button (click)="bringToFront()" class="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-surface-container-high">
+              Traer al frente
+            </button>
+            <button (click)="sendToBack()" class="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-surface-container-high">
+              Enviar atrás
+            </button>
+          </div>
+          <p class="mt-1 text-xs text-on-surface-variant">Solo importa si dos zonas se superponen.</p>
+        </div>
+
+        <div class="border-t border-border pt-3">
+          <label class="mb-1 block text-xs font-medium text-on-surface-variant">Contenido de esta zona</label>
+          @if (scheduleForSelected(); as schedule) {
+            <p class="text-sm">{{ playlistName(schedule.playlistId) }}</p>
+            <p class="text-xs text-on-surface-variant">{{ schedule.startTime | slice: 11:16 }} - {{ schedule.endTime | slice: 11:16 }}</p>
+            <button (click)="removeZoneSchedule(schedule)" class="mt-1 text-xs font-medium text-danger hover:underline">
+              Quitar asignación
+            </button>
+            <p class="mt-2 text-xs text-on-surface-variant">
+              Para horarios más finos (varias franjas, prioridades), gestiónalo desde <a routerLink="/schedules" class="text-accent hover:underline">Programaciones</a>.
+            </p>
+          } @else {
+            <div class="flex gap-2">
+              <select [(ngModel)]="quickPlaylistId" class="flex-1 rounded border border-border px-2 py-1.5 text-sm">
+                <option value="" disabled>Selecciona playlist...</option>
+                @for (p of playlists(); track p.id) {
+                  <option [value]="p.id">{{ p.name }}</option>
+                }
+              </select>
+              <button (click)="assignQuickPlaylist()" class="rounded bg-primary px-3 py-1.5 text-xs font-semibold text-on-primary">
+                Asignar
+              </button>
+            </div>
+            <p class="mt-1 text-xs text-on-surface-variant">Se reproduce todo el día, todos los días. Para franjas horarias, usa Programaciones.</p>
+          }
+        </div>
+
+        <button (click)="removeSelected()" class="text-xs font-medium text-danger hover:underline">Eliminar zona</button>
+      </div>
+    } @else {
+      <p class="text-xs text-on-surface-variant">Selecciona una zona de la lista o del lienzo para editarla, o crea una nueva.</p>
+    }
+  </div>
+</div>
+}

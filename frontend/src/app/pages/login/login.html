@@ -33,13 +33,16 @@
       @if (error()) {
         <p class="text-xs text-danger">{{ error() }}</p>
       }
+      @if (isRateLimited()) {
+        <p class="text-xs text-warning">Podrás volver a intentarlo en {{ retryLabel() }}.</p>
+      }
 
       <button
         type="submit"
-        [disabled]="loading()"
+        [disabled]="loading() || isRateLimited()"
         class="w-full rounded bg-primary px-3 py-2 text-sm font-semibold text-on-primary hover:opacity-90 disabled:opacity-50"
       >
-        {{ loading() ? "Entrando..." : "Entrar" }}
+        {{ isRateLimited() ? "Espera " + retryLabel() : loading() ? "Entrando..." : "Entrar" }}
       </button>
     </form>
   </div>

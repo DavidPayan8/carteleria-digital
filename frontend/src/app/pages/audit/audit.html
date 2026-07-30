@@ -3,6 +3,9 @@
   <p class="text-sm text-on-surface-variant">Registro de borrados y cambios de configuración.</p>
 </div>
 
+@if (loading()) {
+  <app-spinner />
+} @else {
 <div class="overflow-hidden rounded-lg border border-border bg-surface-container">
   <table class="w-full text-left text-sm">
     <thead class="border-b border-border bg-surface-container-high text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -44,3 +47,4 @@
     </div>
   </div>
 </div>
+}

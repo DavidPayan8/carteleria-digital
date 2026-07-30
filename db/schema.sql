@@ -3,6 +3,8 @@
 -- Multi-tenant: Organization (franquicia) -> Location (restaurante) -> Screen
 -- ============================================================================
 
+Use carteleriaDigital;
+
 CREATE TABLE Organizations (
     Id              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
     Name            NVARCHAR(200)    NOT NULL,
@@ -97,6 +99,26 @@ CREATE INDEX IX_Screens_LocationId ON Screens(LocationId);
 CREATE UNIQUE INDEX UX_Screens_PairingCode ON Screens(PairingCode) WHERE PairingCode IS NOT NULL;
 
 -- ----------------------------------------------------------------------------
+-- Layout multi-zona: una pantalla puede dividirse en varias regiones
+-- independientes, cada una con su propia Schedule/Playlist. Una pantalla sin
+-- filas aquí se comporta como antes (una única Schedule a pantalla completa).
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE ScreenZones (
+    Id          UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+    ScreenId    UNIQUEIDENTIFIER NOT NULL REFERENCES Screens(Id),
+    Name        NVARCHAR(200)    NOT NULL,
+    X           DECIMAL(5,2)     NOT NULL, -- % desde la izquierda (0-100)
+    Y           DECIMAL(5,2)     NOT NULL, -- % desde arriba (0-100)
+    Width       DECIMAL(5,2)     NOT NULL, -- % del ancho de la pantalla
+    Height      DECIMAL(5,2)     NOT NULL, -- % del alto de la pantalla
+    ZIndex      INT              NOT NULL DEFAULT 0, -- orden de apilado si dos zonas se superponen
+    CreatedAt   DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt   DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE INDEX IX_ScreenZones_ScreenId ON ScreenZones(ScreenId);
+
+-- ----------------------------------------------------------------------------
 -- Media (fotos / videos en Azure Blob Storage)
 -- ----------------------------------------------------------------------------
 
@@ -147,7 +169,8 @@ CREATE INDEX IX_PlaylistItems_PlaylistId ON PlaylistItems(PlaylistId);
 
 -- ----------------------------------------------------------------------------
 -- Programación (Schedules)
--- Se aplica a UNA de: ScreenId, ScreenGroupId o LocationId (todas las pantallas).
+-- Se aplica a UNA de: ScreenId, ScreenGroupId, LocationId (todas las pantallas)
+-- o ScreenZoneId (una zona concreta del layout de una pantalla).
 -- Cuando varios Schedules solapan en el tiempo, gana el de mayor Priority.
 -- ----------------------------------------------------------------------------
 
@@ -158,6 +181,7 @@ CREATE TABLE Schedules (
     ScreenId        UNIQUEIDENTIFIER NULL REFERENCES Screens(Id),
     ScreenGroupId   UNIQUEIDENTIFIER NULL REFERENCES ScreenGroups(Id),
     LocationId      UNIQUEIDENTIFIER NULL REFERENCES Locations(Id),
+    ScreenZoneId    UNIQUEIDENTIFIER NULL REFERENCES ScreenZones(Id),
 
     Name            NVARCHAR(200)    NOT NULL,
     Priority        INT              NOT NULL DEFAULT 0, -- mayor número = mayor prioridad
@@ -171,12 +195,13 @@ CREATE TABLE Schedules (
     UpdatedAt       DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
 
     CONSTRAINT CK_Schedules_OneTarget CHECK (
-        (IIF(ScreenId IS NOT NULL,1,0) + IIF(ScreenGroupId IS NOT NULL,1,0) + IIF(LocationId IS NOT NULL,1,0)) = 1
+        (IIF(ScreenId IS NOT NULL,1,0) + IIF(ScreenGroupId IS NOT NULL,1,0) + IIF(LocationId IS NOT NULL,1,0) + IIF(ScreenZoneId IS NOT NULL,1,0)) = 1
     )
 );
 CREATE INDEX IX_Schedules_ScreenId ON Schedules(ScreenId);
 CREATE INDEX IX_Schedules_ScreenGroupId ON Schedules(ScreenGroupId);
 CREATE INDEX IX_Schedules_LocationId ON Schedules(LocationId);
+CREATE INDEX IX_Schedules_ScreenZoneId ON Schedules(ScreenZoneId);
 
 -- ----------------------------------------------------------------------------
 -- Historial de estado de pantallas (fase 5 - monitorización)

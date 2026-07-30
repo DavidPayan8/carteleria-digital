@@ -1,20 +1,23 @@
 import { Router } from "express";
-import { requireAuth, requireRole } from "../../middleware/auth";
+import { ROLE } from "../../config/roles.js";
+import { requireAuth, requireRole } from "../../middleware/auth.js";
 import {
   createLocation,
   deleteLocation,
   getLocation,
   listLocations,
   updateLocation,
-} from "./locations.controller";
+} from "./locations.controller.js";
 
-// SuperAdmin y OrgAdmin gestionan restaurantes. TODO: restringir OrgAdmin a su propia organizationId
-// una vez se defina el middleware de scoping multi-tenant (fase 4 del plan).
+// SuperAdmin y OrgAdmin gestionan restaurantes; el scoping multi-tenant (OrgAdmin restringido a su
+// propia organización, LocationAdmin a sus locations) se aplica en locations.controller.ts.
 export const locationsRouter = Router();
+
+const canManage = requireRole(ROLE.SuperAdmin, ROLE.OrgAdmin);
 
 locationsRouter.use(requireAuth);
 locationsRouter.get("/", listLocations);
 locationsRouter.get("/:id", getLocation);
-locationsRouter.post("/", requireRole(1, 2), createLocation);
-locationsRouter.patch("/:id", requireRole(1, 2), updateLocation);
-locationsRouter.delete("/:id", requireRole(1, 2), deleteLocation);
+locationsRouter.post("/", canManage, createLocation);
+locationsRouter.patch("/:id", canManage, updateLocation);
+locationsRouter.delete("/:id", canManage, deleteLocation);
